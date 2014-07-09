@@ -9,7 +9,7 @@ namespace crypto {
 
 void test_randomized_compat(BlockCipher *cipherA, BlockCipher *cipherB, uint32_t iters) {
     std::mt19937 rng;
-    rng.seed(12345);
+    rng.seed(12345);    // Use fixed seed so the test is deterministic
     std::uniform_int_distribution<uint8_t> all_bytes;
 
     bytestring buffer_in, buffer_key, buffer_pt, buffer_ct;
