@@ -2,6 +2,7 @@
 #define __CRYPTO_COMMON_HH
 
 #include <cstdint>
+#include <cstring>
 #include <memory>
 #include <string>
 
@@ -24,6 +25,11 @@ struct MemorySlice {
 };
 
 const MemorySlice nullmem = { nullptr, 0 };
+
+// Convenience function
+inline MemorySlice mem(const uint8_t *ptr, size_t size) {
+    return MemorySlice(ptr, size);
+}
 
 /**
  * A generic class representing a buffer containing bytes.
@@ -82,6 +88,27 @@ class bytestring : public std::basic_string<uint8_t> {
      */
     bytestring(std::initializer_list<uint8_t> il)
         : std::basic_string<uint8_t>(il) {};
+
+    /**
+     * Create a buffer of a specific size.
+     */
+    bytestring(size_t len) : std::basic_string<uint8_t>() {
+        resize(len);
+    }
+
+    /**
+     * Replace the contents of the buffer with the contents of the pointed
+     * memory.
+     */
+    void copy_from(MemorySlice mem) {
+        resize(mem.size);
+        memcpy(ptr(), mem.ptr, mem.size);
+    }
+
+    /**
+     * Convert a well-formed hexadecimal string into corresponding bytestring.
+     */
+    static bytestring from_hex(const char *hex);
 };
 typedef std::unique_ptr<bytestring> bytestring_u;
 
