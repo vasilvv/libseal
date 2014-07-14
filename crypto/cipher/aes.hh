@@ -25,6 +25,11 @@ typedef std::unique_ptr<AESBase> AESBase_u;
 
 AESBase_u getAESImplementation();
 
+/**
+ * Reference implementation of AES in pure C.  Uses lookup tables, and as such
+ * is vulnerable to the cache-timing attacks.  Used as a last fallback if no
+ * other implementation works, or for testing other implementations against it.
+ */
 class ReferenceAES : public AESBase {
   private:
     std::vector<uint32_t> enc_key_schedule;
@@ -38,6 +43,30 @@ class ReferenceAES : public AESBase {
 
     virtual const char *get_impl_desc() const override {
         return "Reference AES implementation";
+    }
+
+    virtual void set_key(const MemorySlice key) override;
+    virtual void encrypt_block(const uint8_t *plaintext,
+                               uint8_t *ciphertext) const override;
+    virtual void decrypt_block(const uint8_t *ciphertext,
+                               uint8_t *plaintext) const override;
+};
+
+/**
+ * AES-NI implementation.
+ *
+ * TODO: invoke necessary subroutines directly instead of calling Intel
+ * library.  Currently, this has some const_casts due to Intel library missing
+ * const specifiers.  Also, it reschedules the key on every call instead of
+ * doing that once when set_key is invoked.
+ */
+class IntelAES : public AESBase {
+  private:
+    bytestring secret_key;
+
+  public:
+    virtual const char *get_impl_desc() const override {
+        return "Intel AES-NI";
     }
 
     virtual void set_key(const MemorySlice key) override;

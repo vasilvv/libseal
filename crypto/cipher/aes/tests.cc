@@ -66,6 +66,22 @@ TEST(ReferenceAES, SelfCompat) {
     crypto::test_randomized_compat(&aesA, &aesB, 10000);
 }
 
+TEST(IntelAES, NISTVectors) {
+    crypto::IntelAES aes;
+    test_nist_vectors(&aes);
+}
+
+TEST(IntelAES, SelfCompat) {
+    crypto::IntelAES aesA, aesB;
+    crypto::test_randomized_compat(&aesA, &aesB, 10000);
+}
+
+TEST(IntelAES, ReferenceCompat) {
+    crypto::ReferenceAES aesA;
+    crypto::IntelAES aesB;
+    crypto::test_randomized_compat(&aesA, &aesB, 10000);
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

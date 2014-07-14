@@ -12,3 +12,4 @@ add_library(
 	$<TARGET_OBJECTS:crypto_cipher>
 	$<TARGET_OBJECTS:crypto_cipher_aes>
 )
+target_link_libraries(crypto intel_aesni)

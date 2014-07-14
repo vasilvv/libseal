@@ -1,6 +1,8 @@
 #include "crypto/cipher/aes.hh"
 #include "crypto/cipher/aes/rijndael-alg-fst.h"
 
+#include "iaesni.h"
+
 #include <cstdint>
 
 #define MAX_AES_KEY_SCHEDULE_LEN   64
@@ -35,6 +37,35 @@ void ReferenceAES::encrypt_block(const uint8_t *plaintext,
 void ReferenceAES::decrypt_block(const uint8_t *ciphertext,
                                  uint8_t *plaintext) const {
     rijndaelDecrypt(dec_key_schedule.data(), nrounds, ciphertext, plaintext);
+}
+
+
+void IntelAES::set_key(const MemorySlice key) {
+    secret_key = bytestring(key);
+}
+
+void IntelAES::encrypt_block(const uint8_t *plaintext,
+                             uint8_t *ciphertext) const {
+    if (secret_key.size() == 16) {
+        intel_AES_enc128(const_cast<uint8_t *>(plaintext), ciphertext,
+                         const_cast<uint8_t *>(secret_key.cptr()), 1);
+    }
+    if (secret_key.size() == 32) {
+        intel_AES_enc256(const_cast<uint8_t *>(plaintext), ciphertext,
+                         const_cast<uint8_t *>(secret_key.cptr()), 1);
+    }
+}
+
+void IntelAES::decrypt_block(const uint8_t *ciphertext,
+                                 uint8_t *plaintext) const {
+    if (secret_key.size() == 16) {
+        intel_AES_dec128(const_cast<uint8_t *>(ciphertext), plaintext,
+                         const_cast<uint8_t *>(secret_key.cptr()), 1);
+    }
+    if (secret_key.size() == 32) {
+        intel_AES_dec256(const_cast<uint8_t *>(ciphertext), plaintext,
+                         const_cast<uint8_t *>(secret_key.cptr()), 1);
+    }
 }
 
 }

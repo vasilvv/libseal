@@ -1,4 +1,4 @@
-include_directories(../../..)
+include_directories(../../.. ../../../third_party/intel_aes/include)
 
 add_library(
 	crypto_cipher_aes
