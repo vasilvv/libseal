@@ -68,4 +68,42 @@ void IntelAES::decrypt_block(const uint8_t *ciphertext,
     }
 }
 
+void IntelAES::encrypt_cbc(const bytestring &plaintext, const bytestring &iv,
+                           bytestring &ciphertext) const {
+    size_t num_blocks = plaintext.size() / get_block_size();
+    ciphertext.resize(plaintext.size());
+
+    if (secret_key.size() == 16) {
+        intel_AES_enc128_CBC(const_cast<uint8_t *>(plaintext.cptr()),
+                             ciphertext.ptr(),
+                             const_cast<uint8_t *>(secret_key.cptr()),
+                             num_blocks, const_cast<uint8_t *>(iv.cptr()));
+    }
+    if (secret_key.size() == 32) {
+        intel_AES_enc256_CBC(const_cast<uint8_t *>(plaintext.cptr()),
+                             ciphertext.ptr(),
+                             const_cast<uint8_t *>(secret_key.cptr()),
+                             num_blocks, const_cast<uint8_t *>(iv.cptr()));
+    }
+}
+
+void IntelAES::decrypt_cbc(const bytestring &ciphertext, const bytestring &iv,
+            bytestring &plaintext) const {
+    size_t num_blocks = ciphertext.size() / get_block_size();
+    plaintext.resize(ciphertext.size());
+
+    if (secret_key.size() == 16) {
+        intel_AES_dec128_CBC(const_cast<uint8_t *>(ciphertext.cptr()),
+                             plaintext.ptr(),
+                             const_cast<uint8_t *>(secret_key.cptr()),
+                             num_blocks, const_cast<uint8_t *>(iv.cptr()));
+    }
+    if (secret_key.size() == 32) {
+        intel_AES_dec256_CBC(const_cast<uint8_t *>(ciphertext.cptr()),
+                             plaintext.ptr(),
+                             const_cast<uint8_t *>(secret_key.cptr()),
+                             num_blocks, const_cast<uint8_t *>(iv.cptr()));
+    }
+}
+
 }

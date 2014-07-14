@@ -70,6 +70,26 @@ class BlockCipher {
      */
     virtual void decrypt_block(const uint8_t *ciphertext,
                                uint8_t *plaintext) const = 0;
+
+    /**
+     * CBC mode encryption.
+     *
+     * Encrypt specified chunk of plaintext using key and the specified IV.
+     * Does not handle padding; plaintext MUST be divisible by the block size
+     * and the IV length MUST be equal to the block size.
+     */
+    virtual void encrypt_cbc(const bytestring &plaintext, const bytestring &iv,
+            bytestring &ciphertext) const;
+
+    /**
+     * CBC mode decryption.
+     *
+     * Decrypt specified block of ciphertext using key and the specified IV.
+     * Does not handle padding; ciphertext MUST be divisible by the block size
+     * and the IV length MUST be equal to the block size.
+     */
+    virtual void decrypt_cbc(const bytestring &ciphertext, const bytestring &iv,
+            bytestring &plaintext) const;
 };
 
 }

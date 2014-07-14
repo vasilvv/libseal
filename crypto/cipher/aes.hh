@@ -8,6 +8,7 @@
 namespace crypto {
 
 class AESBase : public BlockCipher {
+  public:
     virtual const char *get_name() const override {
         return "AES";
     }
@@ -74,6 +75,10 @@ class IntelAES : public AESBase {
                                uint8_t *ciphertext) const override;
     virtual void decrypt_block(const uint8_t *ciphertext,
                                uint8_t *plaintext) const override;
+    virtual void encrypt_cbc(const bytestring &plaintext, const bytestring &iv,
+            bytestring &ciphertext) const override;
+    virtual void decrypt_cbc(const bytestring &ciphertext, const bytestring &iv,
+            bytestring &plaintext) const override;
 };
 
 }
