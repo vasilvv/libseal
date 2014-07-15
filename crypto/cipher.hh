@@ -15,16 +15,14 @@
 namespace crypto {
 
 /**
- * The base interface which is implemented by every cipher which operates on
- * blocks of fixed size.  Note that "fixed size" here means that each subclass
- * has fixed size.
+ * Common methods for both BlockCipher and StreamCipher interface.
  */
-class BlockCipher {
+class CipherBase {
   public:
-    virtual ~BlockCipher() {};
+    virtual ~CipherBase() {};
 
     /**
-     * Return the name of the cipher algorithm, like "AES" or "Camellia".
+     * Return the name of the cipher algorithm, like "AES" or "Chacha20".
      */
     virtual const char *get_name() const = 0;
 
@@ -35,20 +33,30 @@ class BlockCipher {
     virtual const char *get_impl_desc() const = 0;
 
     /**
-     * Return the size of the block on which the class operates.
-     */
-    virtual size_t get_block_size() const = 0;
-
-    /**
      * Returns true if the block cipher works with keys of |size|
      * size.
      */
     virtual bool is_valid_key_size(size_t size) const = 0;
+};
+
+/**
+ * The base interface which is implemented by every cipher which operates on
+ * blocks of fixed size.  Note that "fixed size" here means that each subclass
+ * has fixed size.
+ */
+class BlockCipher : public CipherBase {
+  public:
+    virtual ~BlockCipher() {};
 
     /**
      * Set and schedule the key for subsequent operations.
      */
     virtual void set_key(const MemorySlice key) = 0;
+
+    /**
+     * Return the size of the block on which the class operates.
+     */
+    virtual size_t get_block_size() const = 0;
 
     /**
      * Encrypt block of size returned by get_block_size() worth of bytes
@@ -90,6 +98,28 @@ class BlockCipher {
      */
     virtual void decrypt_cbc(const bytestring &ciphertext, const bytestring &iv,
             bytestring &plaintext) const;
+};
+
+/**
+ * The base interface of a stream cipher, that is, a cipher which operates by
+ * generating a random stream of bytes based on the key and IV, and encrypts
+ * data by XORing it with that stream.
+ */
+class StreamCipher : public CipherBase {
+  public:
+    virtual ~StreamCipher() {};
+
+    /**
+     * Generate the initial state of the stream cipher based on the
+     * supplied key and initialization vector.
+     */
+    virtual void init(const MemorySlice key, const MemorySlice iv) = 0;
+
+    /**
+     * Generate the secret stream and xor it with the contents of the supplied
+     * memory slice.
+     */
+    virtual void stream_xor(MemorySlice stream) = 0;
 };
 
 }

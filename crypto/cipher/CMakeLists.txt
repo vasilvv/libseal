@@ -9,3 +9,4 @@ add_library(
 )
 
 add_subdirectory(aes)
+add_subdirectory(rc4)
