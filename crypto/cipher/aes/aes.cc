@@ -16,10 +16,10 @@ ReferenceAES::ReferenceAES() {
 
 void ReferenceAES::set_key(const MemorySlice key) {
     // FIXME: assert key size
-    key_size = key.size;
+    key_size = key.size();
 
-    rijndaelKeySetupEnc(&*enc_key_schedule.begin(), key.ptr, key_size * 8);
-    rijndaelKeySetupDec(&*dec_key_schedule.begin(), key.ptr, key_size * 8);
+    rijndaelKeySetupEnc(&*enc_key_schedule.begin(), key.cptr(), key_size * 8);
+    rijndaelKeySetupDec(&*dec_key_schedule.begin(), key.cptr(), key_size * 8);
 
     if (key_size == 16) {
         nrounds = 10;

@@ -12,23 +12,38 @@ namespace crypto {
  * A generic structure to represent a pointer to a bounded segment in the
  * memory without any assertions on the ownership of that segment.
  *
+ * The class has two accessors: ptr() and cptr().  First returns a read-write
+ * pointer, second returns read-only pointer, and it's the only one you can use
+ * if you have a const MemorySlice.  To create a const MemorySlice, use cmem()
+ * function.
+ *
  * By convention, a null memory slice is represented as {nullptr, 0},
  * which is normally referred to as nullmem.
  */
 struct MemorySlice {
-    const uint8_t *ptr;
-    size_t size;
+  private:
+    uint8_t *ptr_;
+    size_t size_;
 
-    inline MemorySlice(const uint8_t *ptr_, size_t size_)
-        : ptr(ptr_), size(size_) {}
-    operator bool() { return ptr != nullptr; }
+  public:
+    inline MemorySlice(uint8_t *ptr, size_t size)
+        : ptr_(ptr), size_(size) {}
+    operator bool() { return ptr_ != nullptr; }
+
+    uint8_t *ptr() { return ptr_; }
+    const uint8_t *cptr() const { return ptr_; }
+    const size_t size() const { return size_; }
 };
 
 const MemorySlice nullmem = { nullptr, 0 };
 
-// Convenience function
-inline MemorySlice mem(const uint8_t *ptr, size_t size) {
+// Convenience functions
+inline MemorySlice mem(uint8_t *ptr, size_t size) {
     return MemorySlice(ptr, size);
+}
+
+inline const MemorySlice cmem(const uint8_t *ptr, size_t size) {
+    return MemorySlice(const_cast<uint8_t*>(ptr), size);
 }
 
 /**
@@ -57,7 +72,7 @@ class bytestring : public std::basic_string<uint8_t> {
      * Return the constant pointer and the length of the buffer.
      */
     inline const MemorySlice cmem() const {
-        return MemorySlice(cptr(), size());
+        return crypto::cmem(cptr(), size());
     }
 
     /**
@@ -80,8 +95,8 @@ class bytestring : public std::basic_string<uint8_t> {
     /**
      * Create buffer by copying another buffer (MemorySlice).
      */
-    bytestring(MemorySlice mem)
-        : std::basic_string<uint8_t>(mem.ptr, mem.size) {}
+    bytestring(const MemorySlice mem)
+        : std::basic_string<uint8_t>(mem.cptr(), mem.size()) {}
 
     /**
      * Create a buffer from an initializer list of bytes.
@@ -100,9 +115,9 @@ class bytestring : public std::basic_string<uint8_t> {
      * Replace the contents of the buffer with the contents of the pointed
      * memory.
      */
-    void copy_from(MemorySlice mem) {
-        resize(mem.size);
-        memcpy(ptr(), mem.ptr, mem.size);
+    void copy_from(const MemorySlice mem) {
+        resize(mem.size());
+        memcpy(ptr(), mem.cptr(), mem.size());
     }
 
     /**
