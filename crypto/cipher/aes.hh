@@ -24,7 +24,7 @@ class AESBase : public BlockCipher {
 
 typedef std::unique_ptr<AESBase> AESBase_u;
 
-AESBase_u getAESImplementation();
+AESBase_u get_aes();
 
 /**
  * Reference implementation of AES in pure C.  Uses lookup tables, and as such

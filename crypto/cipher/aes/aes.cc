@@ -1,3 +1,4 @@
+#include "crypto/cpu.hh"
 #include "crypto/cipher/aes.hh"
 #include "crypto/cipher/aes/rijndael-alg-fst.h"
 
@@ -8,6 +9,16 @@
 #define MAX_AES_KEY_SCHEDULE_LEN   64
 
 namespace crypto {
+
+AESBase_u get_aes() {
+    CPU cpu;
+
+    if (cpu.has_aesni()) {
+        return AESBase_u(new IntelAES());
+    }
+
+    return AESBase_u(new ReferenceAES());
+}
 
 ReferenceAES::ReferenceAES() {
     enc_key_schedule.resize(MAX_AES_KEY_SCHEDULE_LEN);

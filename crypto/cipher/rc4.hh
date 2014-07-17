@@ -21,6 +21,8 @@ class RC4Base : public StreamCipher {
     }
 };
 
+typedef std::unique_ptr<RC4Base> RC4Base_u;
+
 /**
  * Straightforward implementation of RC4 in pure C.
  */
@@ -35,6 +37,8 @@ class RC4 : public RC4Base {
     virtual void init(const MemorySlice key, const MemorySlice iv) override;
     virtual void stream_xor(MemorySlice stream) override;
 };
+
+inline RC4Base_u get_rc4() { return RC4Base_u(new RC4()); }
 
 };
 
