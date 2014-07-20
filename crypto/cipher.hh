@@ -98,6 +98,14 @@ class BlockCipher : public CipherBase {
      */
     virtual void decrypt_cbc(const bytestring &ciphertext, const bytestring &iv,
             bytestring &plaintext) const;
+
+    /**
+     * CTR mode encryption/decryption.
+     *
+     * 
+     */
+    //virtual void counter_xor(const bytestring &iv, const bytestring &input,
+                     //bytestring &output) const;
 };
 
 /**
