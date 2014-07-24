@@ -507,6 +507,7 @@ TEST(IntelAES, ReferenceCompat) {
 }
 
 TEST(AESInterface, ImplSelection) {
+    test_nist_vectors(crypto::AES);
 }
 
 int main(int argc, char **argv) {
