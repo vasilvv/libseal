@@ -3,6 +3,8 @@
 
 #include "crypto/common.hh"
 
+#include <functional>
+
 namespace crypto {
 
 /**
@@ -43,11 +45,13 @@ class HashFunction {
     virtual bytestring_u finish() = 0;
 };
 
-template<typename H>
-bytestring_u hash(const MemorySlice data) {
-    H hash;
-    hash.update(data);
-    return hash.finish();
+typedef std::unique_ptr<HashFunction> HashFunction_u;
+typedef std::function<HashFunction_u()> HashFunctionFactory;
+
+inline bytestring_u hash(HashFunctionFactory HFF, const MemorySlice data) {
+    HashFunction_u hash = HFF();
+    hash->update(data);
+    return hash->finish();
 }
 
 }

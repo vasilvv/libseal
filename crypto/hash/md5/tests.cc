@@ -17,7 +17,9 @@ const RFCVector RFCVectors[] = {
     { "12345678901234567890123456789012345678901234567890123456789012345678901234567890", "57edf4a22be3c955ac49da2e2107b67a" },
 };
 
+// Test default implementation
 TEST(MD5, RFC1321Vectors) {
+    const crypto::HashFunctionFactory impl = []() { return crypto::MD5Base_u(new crypto::MD5Impl()); };
     size_t num_vectors = sizeof(RFCVectors) / sizeof(RFCVector);
     for (size_t i = 0; i < num_vectors; i++) {
         crypto::bytestring input = crypto::bytestring(
@@ -25,7 +27,7 @@ TEST(MD5, RFC1321Vectors) {
         crypto::bytestring expected =
             crypto::bytestring::from_hex(RFCVectors[i].output);
 
-        crypto::bytestring_u actual = crypto::hash<crypto::MD5>(input.mem());
+        crypto::bytestring_u actual = crypto::hash(impl, input.mem());
         EXPECT_EQ(expected, *actual);
     }
 }

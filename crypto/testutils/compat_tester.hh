@@ -9,7 +9,9 @@ namespace crypto {
  * Test that block ciphers A and B can mutually understand each other by
  * generating a stream of random plaintext using a non-cryptographic RNG.
  */
-void test_randomized_compat(BlockCipher *cipherA, BlockCipher *cipherB, uint32_t iters);
+void test_randomized_compat(BlockCipherFactory cipherA,
+                            BlockCipherFactory cipherB, size_t key_size,
+                            uint32_t iters);
 
 }
 

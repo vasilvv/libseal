@@ -20,7 +20,10 @@ class MD5Base : public HashFunction {
     }
 };
 
-class MD5 : public MD5Base {
+typedef std::unique_ptr<MD5Base> MD5Base_u;
+MD5Base_u MD5();
+
+class MD5Impl : public MD5Base {
   private:
     unsigned int sz[2];
     uint32_t counter[4];
@@ -29,7 +32,7 @@ class MD5 : public MD5Base {
     void calc(uint32_t *data);
 
   public:
-    MD5();
+    MD5Impl();
 
     virtual void update(const MemorySlice data) override;
     virtual bytestring_u finish() override;

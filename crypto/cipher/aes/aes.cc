@@ -10,22 +10,20 @@
 
 namespace crypto {
 
-AESBase_u get_aes() {
+AESBase_u AES(const MemorySlice key) {
     CPU cpu;
 
     if (cpu.has_aesni()) {
-        return AESBase_u(new IntelAES());
+        return AESBase_u(new IntelAES(key));
     }
 
-    return AESBase_u(new ReferenceAES());
+    return AESBase_u(new ReferenceAES(key));
 }
 
-ReferenceAES::ReferenceAES() {
+ReferenceAES::ReferenceAES(const MemorySlice key) {
     enc_key_schedule.resize(MAX_AES_KEY_SCHEDULE_LEN);
     dec_key_schedule.resize(MAX_AES_KEY_SCHEDULE_LEN);
-}
 
-void ReferenceAES::set_key(const MemorySlice key) {
     // FIXME: assert key size
     key_size = key.size();
 
@@ -51,7 +49,7 @@ void ReferenceAES::decrypt_block(const uint8_t *ciphertext,
 }
 
 
-void IntelAES::set_key(const MemorySlice key) {
+IntelAES::IntelAES(const MemorySlice key) {
     secret_key = bytestring(key);
 }
 

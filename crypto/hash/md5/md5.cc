@@ -41,6 +41,10 @@
 
 namespace crypto {
 
+MD5Base_u MD5() {
+    return MD5Base_u(new MD5Impl());
+}
+
 static inline uint32_t
 cshift (uint32_t x, unsigned int n)
 {
@@ -53,7 +57,7 @@ cshift (uint32_t x, unsigned int n)
 #define D counter[3]
 #define X data
 
-MD5::MD5 ()
+MD5Impl::MD5Impl ()
 {
   sz[0] = 0;
   sz[1] = 0;
@@ -77,7 +81,7 @@ a = b + cshift(a + OP(b,c,d) + X[k] + (i), s)
 #define DO4(a,b,c,d,k,s,i) DOIT(a,b,c,d,k,s,i,I)
 
 void
-MD5::calc (uint32_t *data)
+MD5Impl::calc (uint32_t *data)
 {
   uint32_t AA, BB, CC, DD;
 
@@ -185,7 +189,7 @@ MD5::calc (uint32_t *data)
  */
 
 void
-MD5::update(const MemorySlice data)
+MD5Impl::update(const MemorySlice data)
 {
   const uint8_t *v = data.cptr();
   size_t len = data.size();
@@ -212,7 +216,7 @@ MD5::update(const MemorySlice data)
 }
 
 bytestring_u
-MD5::finish ()
+MD5Impl::finish ()
 {
   unsigned char zeros[72];
   unsigned offset = (sz[0] / 8) % 64;

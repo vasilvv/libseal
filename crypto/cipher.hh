@@ -49,11 +49,6 @@ class BlockCipher : public CipherBase {
     virtual ~BlockCipher() {};
 
     /**
-     * Set and schedule the key for subsequent operations.
-     */
-    virtual void set_key(const MemorySlice key) = 0;
-
-    /**
      * Return the size of the block on which the class operates.
      */
     virtual size_t get_block_size() const = 0;
@@ -107,6 +102,9 @@ class BlockCipher : public CipherBase {
     //virtual void counter_xor(const bytestring &iv, const bytestring &input,
                      //bytestring &output) const;
 };
+
+typedef std::unique_ptr<BlockCipher> BlockCipher_u;
+typedef std::function<BlockCipher_u(const MemorySlice)> BlockCipherFactory;
 
 /**
  * The base interface of a stream cipher, that is, a cipher which operates by

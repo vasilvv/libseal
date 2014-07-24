@@ -9,6 +9,8 @@ namespace crypto {
 
 class AESBase : public BlockCipher {
   public:
+    virtual ~AESBase() {};
+
     virtual const char *get_name() const override {
         return "AES";
     }
@@ -23,8 +25,7 @@ class AESBase : public BlockCipher {
 };
 
 typedef std::unique_ptr<AESBase> AESBase_u;
-
-AESBase_u get_aes();
+AESBase_u AES(const MemorySlice key);
 
 /**
  * Reference implementation of AES in pure C.  Uses lookup tables, and as such
@@ -40,13 +41,12 @@ class ReferenceAES : public AESBase {
     uint8_t nrounds;
 
   public:
-    ReferenceAES();
+    ReferenceAES(const MemorySlice key);
 
     virtual const char *get_impl_desc() const override {
         return "Reference AES implementation";
     }
 
-    virtual void set_key(const MemorySlice key) override;
     virtual void encrypt_block(const uint8_t *plaintext,
                                uint8_t *ciphertext) const override;
     virtual void decrypt_block(const uint8_t *ciphertext,
@@ -66,11 +66,12 @@ class IntelAES : public AESBase {
     bytestring secret_key;
 
   public:
+    IntelAES(const MemorySlice key);
+
     virtual const char *get_impl_desc() const override {
         return "Intel AES-NI";
     }
 
-    virtual void set_key(const MemorySlice key) override;
     virtual void encrypt_block(const uint8_t *plaintext,
                                uint8_t *ciphertext) const override;
     virtual void decrypt_block(const uint8_t *ciphertext,

@@ -405,25 +405,25 @@ const CAVSTestVector CBCMMTDecVectors256[] = {
  * Tests an implementation against NIST test vectors for AES-128 and AES-256,
  * both encrpyt and decrypt.
  */
-void test_nist_vectors(crypto::AESBase *aes) {
+void test_nist_vectors(crypto::BlockCipherFactory impl) {
     crypto::bytestring output(16);
 
     // Test AES-128
-    aes->set_key(nist_aes128_key_block.cmem());
+    crypto::BlockCipher_u aes128 = impl(nist_aes128_key_block.cmem());
     // Encrypt
-    aes->encrypt_block(nist_aes_pt_block.cptr(), output.ptr());
+    aes128->encrypt_block(nist_aes_pt_block.cptr(), output.ptr());
     EXPECT_EQ(nist_aes128_ct_block, output);
     // Decrypt
-    aes->decrypt_block(nist_aes128_ct_block.cptr(), output.ptr());
+    aes128->decrypt_block(nist_aes128_ct_block.cptr(), output.ptr());
     EXPECT_EQ(nist_aes_pt_block, output);
 
     // Test AES-256
-    aes->set_key(nist_aes256_key_block.cmem());
+    crypto::BlockCipher_u aes256 = impl(nist_aes256_key_block.cmem());
     // Encrypt
-    aes->encrypt_block(nist_aes_pt_block.cptr(), output.ptr());
+    aes256->encrypt_block(nist_aes_pt_block.cptr(), output.ptr());
     EXPECT_EQ(nist_aes256_ct_block, output);
     // Decrypt
-    aes->decrypt_block(nist_aes256_ct_block.cptr(), output.ptr());
+    aes256->decrypt_block(nist_aes256_ct_block.cptr(), output.ptr());
     EXPECT_EQ(nist_aes_pt_block, output);
 }
 
@@ -431,7 +431,7 @@ void test_nist_vectors(crypto::AESBase *aes) {
  * Tests an implementation against CBC test vectors for AES-128 and AES-256
  * provided by NIST.
  */
-void test_cbc_vectors(crypto::AESBase *aes) {
+void test_cbc_vectors(crypto::BlockCipherFactory impl) {
     crypto::bytestring output(16);
 
     // FIXME: use C++11 magic to replace four blocks of code below
@@ -440,13 +440,13 @@ void test_cbc_vectors(crypto::AESBase *aes) {
     // Test AES-128
     for (size_t i = 0; i < sizeof(CBCMMTEncVectors128) / sizeof(CBCMMTEncVectors128[0]); i++) {
         const CAVSTestVector &vec = CBCMMTEncVectors128[i];
-        aes->set_key(vec.key.cmem());
+        crypto::BlockCipher_u aes = impl(vec.key.cmem());
         aes->encrypt_cbc(vec.input, vec.iv, output);
         EXPECT_EQ(vec.output, output);
     }
     for (size_t i = 0; i < sizeof(CBCMMTDecVectors128) / sizeof(CBCMMTDecVectors128[0]); i++) {
         const CAVSTestVector &vec = CBCMMTDecVectors128[i];
-        aes->set_key(vec.key.cmem());
+        crypto::BlockCipher_u aes = impl(vec.key.cmem());
         aes->decrypt_cbc(vec.input, vec.iv, output);
         EXPECT_EQ(vec.output, output);
     }
@@ -454,52 +454,59 @@ void test_cbc_vectors(crypto::AESBase *aes) {
     // Test AES-256
     for (size_t i = 0; i < sizeof(CBCMMTEncVectors256) / sizeof(CBCMMTEncVectors256[0]); i++) {
         const CAVSTestVector &vec = CBCMMTEncVectors256[i];
-        aes->set_key(vec.key.cmem());
+        crypto::BlockCipher_u aes = impl(vec.key.cmem());
         aes->encrypt_cbc(vec.input, vec.iv, output);
         EXPECT_EQ(vec.output, output);
     }
     for (size_t i = 0; i < sizeof(CBCMMTDecVectors256) / sizeof(CBCMMTDecVectors256[0]); i++) {
         const CAVSTestVector &vec = CBCMMTDecVectors256[i];
-        aes->set_key(vec.key.cmem());
+        crypto::BlockCipher_u aes = impl(vec.key.cmem());
         aes->decrypt_cbc(vec.input, vec.iv, output);
         EXPECT_EQ(vec.output, output);
     }
 }
 
+crypto::BlockCipher_u referenceAES(const crypto::MemorySlice key) {
+    return crypto::BlockCipher_u(new crypto::ReferenceAES(key));
+}
+
 TEST(ReferenceAES, NISTVectors) {
-    crypto::ReferenceAES aes;
-    test_nist_vectors(&aes);
+    test_nist_vectors(referenceAES);
 }
 
 TEST(ReferenceAES, CBCVectors) {
-    crypto::ReferenceAES aes;
-    test_cbc_vectors(&aes);
+    test_cbc_vectors(referenceAES);
 }
 
 TEST(ReferenceAES, SelfCompat) {
-    crypto::ReferenceAES aesA, aesB;
-    crypto::test_randomized_compat(&aesA, &aesB, 10000);
+    crypto::test_randomized_compat(referenceAES, referenceAES, 16, 10000);
+    crypto::test_randomized_compat(referenceAES, referenceAES, 32, 10000);
 }
 
+crypto::BlockCipher_u intelAES(const crypto::MemorySlice key) {
+    return crypto::BlockCipher_u(new crypto::IntelAES(key));
+}
+
+
 TEST(IntelAES, NISTVectors) {
-    crypto::IntelAES aes;
-    test_nist_vectors(&aes);
+    test_nist_vectors(intelAES);
 }
 
 TEST(IntelAES, CBCVectors) {
-    crypto::IntelAES aes;
-    test_cbc_vectors(&aes);
+    test_cbc_vectors(intelAES);
 }
 
 TEST(IntelAES, SelfCompat) {
-    crypto::IntelAES aesA, aesB;
-    crypto::test_randomized_compat(&aesA, &aesB, 10000);
+    crypto::test_randomized_compat(intelAES, intelAES, 16, 10000);
+    crypto::test_randomized_compat(intelAES, intelAES, 32, 10000);
 }
 
 TEST(IntelAES, ReferenceCompat) {
-    crypto::ReferenceAES aesA;
-    crypto::IntelAES aesB;
-    crypto::test_randomized_compat(&aesA, &aesB, 10000);
+    crypto::test_randomized_compat(referenceAES, intelAES, 16, 10000);
+    crypto::test_randomized_compat(referenceAES, intelAES, 32, 10000);
+}
+
+TEST(AESInterface, ImplSelection) {
 }
 
 int main(int argc, char **argv) {
