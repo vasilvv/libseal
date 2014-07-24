@@ -285,7 +285,7 @@ uint32_t RC4TestVectorLayout[] = { 0x00,  0x10,  0xf0,  0x100, 0x1f0, 0x200,
                                    0x2f0, 0x300, 0x3f0, 0x400, 0x5f0, 0x600,
                                    0x7f0, 0x800, 0xbf0, 0xc00, 0xff0, 0x1000 };
 
-void test_ietf_vectors(crypto::RC4Base *rc4) {
+void test_ietf_vectors(crypto::StreamCipherFactory impl) {
     crypto::bytestring stream;
 
     // Number of fragments checked
@@ -302,7 +302,7 @@ void test_ietf_vectors(crypto::RC4Base *rc4) {
         stream.resize(RC4TestVectorLayout[num_fragments - 1] + fragment_len);
         memset(stream.ptr(), 0, stream.size());
 
-        rc4->init(key.cmem(), crypto::nullmem);
+        crypto::StreamCipher_u rc4 = impl(key.cmem(), crypto::nullmem);
         rc4->stream_xor(stream.mem());
 
         for (size_t j = 0; j < num_fragments; j++) {
@@ -313,9 +313,12 @@ void test_ietf_vectors(crypto::RC4Base *rc4) {
     }
 }
 
+crypto::StreamCipher_u defaultRC4(const crypto::MemorySlice key, const crypto::MemorySlice iv) {
+    return crypto::StreamCipher_u(new crypto::RC4Impl(key, iv));
+}
+
 TEST(RC4, IETFVectors) {
-    crypto::RC4 rc4;
-    test_ietf_vectors(&rc4);
+    test_ietf_vectors(defaultRC4);
 }
 
 int main(int argc, char **argv) {

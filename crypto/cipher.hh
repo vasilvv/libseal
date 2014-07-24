@@ -116,17 +116,14 @@ class StreamCipher : public CipherBase {
     virtual ~StreamCipher() {};
 
     /**
-     * Generate the initial state of the stream cipher based on the
-     * supplied key and initialization vector.
-     */
-    virtual void init(const MemorySlice key, const MemorySlice iv) = 0;
-
-    /**
      * Generate the secret stream and xor it with the contents of the supplied
      * memory slice.
      */
     virtual void stream_xor(MemorySlice stream) = 0;
 };
+
+typedef std::unique_ptr<StreamCipher> StreamCipher_u;
+typedef std::function<StreamCipher_u(const MemorySlice, const MemorySlice)> StreamCipherFactory;
 
 }
 

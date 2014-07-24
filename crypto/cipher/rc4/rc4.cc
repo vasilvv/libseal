@@ -2,13 +2,17 @@
 
 namespace crypto {
 
+RC4Base_u RC4(const MemorySlice key, const MemorySlice iv) {
+    return RC4Base_u(new RC4Impl(key, iv));
+}
+
 static inline void swap_bytes(uint8_t &a, uint8_t &b) {
     uint8_t tmp = a;
     a = b;
     b = tmp;
 }
 
-void RC4::init(const MemorySlice key_mem, const MemorySlice iv_mem) {
+RC4Impl::RC4Impl(const MemorySlice key_mem, const MemorySlice iv_mem) {
     const uint8_t *key = key_mem.cptr();
     size_t key_len = key_mem.size();
 
@@ -26,7 +30,7 @@ void RC4::init(const MemorySlice key_mem, const MemorySlice iv_mem) {
     j = 0;
 }
 
-void RC4::stream_xor(MemorySlice stream) {
+void RC4Impl::stream_xor(MemorySlice stream) {
     for (size_t k = 0; k < stream.size(); k++) {
         uint8_t idx;
         i++;
