@@ -17,9 +17,41 @@ const RFCVector RFCVectors[] = {
     { "12345678901234567890123456789012345678901234567890123456789012345678901234567890", "57edf4a22be3c955ac49da2e2107b67a" },
 };
 
+struct HMACVector {
+    const char *key;
+    bool hex;
+    const char *input;
+    const char *output;
+};
+
+const std::vector<HMACVector> HMACVectors{
+    { "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", true,
+      "Hi There",
+      "9294727a3638bb1c13f48ef8158bfc9d" },
+    { "Jefe", false,
+      "what do ya want for nothing?",
+      "750c783e6ab0b503eaa86e310a5db738" },
+    { "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", true,
+      "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd",
+      "56be34521d144c88dbb8c733f0e8b3f6" },
+    { "0102030405060708090a0b0c0d0e0f10111213141516171819", true,
+      "\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd",
+      "697eaf0aca3a3aea3a75164746ffaa79" },
+    { "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", true,
+      "Test With Truncation",
+      "56461ef2342edc00f9bab995690efd4c" },
+    { "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", true,
+      "Test Using Larger Than Block-Size Key - Hash Key First",
+      "6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd" },
+    { "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", true,
+      "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data",
+      "6f630fad67cda0ee1fb1f562db3aa53e" }
+};
+
+const crypto::HashFunctionFactory defaultImpl = []() { return crypto::MD5Base_u(new crypto::MD5Impl()); };
+
 // Test default implementation
 TEST(MD5, RFC1321Vectors) {
-    const crypto::HashFunctionFactory impl = []() { return crypto::MD5Base_u(new crypto::MD5Impl()); };
     size_t num_vectors = sizeof(RFCVectors) / sizeof(RFCVector);
     for (size_t i = 0; i < num_vectors; i++) {
         crypto::bytestring input = crypto::bytestring(
@@ -27,7 +59,27 @@ TEST(MD5, RFC1321Vectors) {
         crypto::bytestring expected =
             crypto::bytestring::from_hex(RFCVectors[i].output);
 
-        crypto::bytestring_u actual = crypto::hash(impl, input.mem());
+        crypto::bytestring_u actual = crypto::hash(defaultImpl, input.mem());
+        EXPECT_EQ(expected, *actual);
+    }
+}
+
+TEST(MD5, RFC2202Vectors) {
+    for (auto vector : HMACVectors) {
+        crypto::bytestring key;
+        if (vector.hex) {
+            key = crypto::bytestring::from_hex(vector.key);
+        } else {
+            key = crypto::bytestring((const uint8_t *)vector.key,
+                                     strlen(vector.key));
+        }
+
+        crypto::bytestring input = crypto::bytestring(
+            (const uint8_t *)vector.input, strlen(vector.input));
+        crypto::bytestring expected =
+            crypto::bytestring::from_hex(vector.output);
+
+        crypto::bytestring_u actual = crypto::hmac(defaultImpl, key.cmem(), input.cmem());
         EXPECT_EQ(expected, *actual);
     }
 }

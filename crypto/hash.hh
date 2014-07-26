@@ -54,6 +54,38 @@ inline bytestring_u hash(HashFunctionFactory HFF, const MemorySlice data) {
     return hash->finish();
 }
 
+/**
+ * Implements hash-based MAC as described in RFC 2104.
+ */
+class HMAC {
+  private:
+    HashFunction_u inner_hash;
+    HashFunction_u outer_hash;
+
+  public:
+    /**
+     * Create an HMAC using hash function |hash| and key |key|.
+     */
+    HMAC(HashFunctionFactory HFF, const MemorySlice key);
+
+    /**
+     * Feed data into the MAC.
+     */
+    void update(const MemorySlice data);
+
+    /**
+     * Finish computing the MAC and return it.  May change the state of the
+     * hash.
+     */
+    bytestring_u finish();
+};
+
+inline bytestring_u hmac(HashFunctionFactory HFF, const MemorySlice key, const MemorySlice data) {
+    HMAC mac(HFF, key);
+    mac.update(data);
+    return mac.finish();
+}
+
 }
 
 #endif /* __CRYPTO_HASH_HH */
