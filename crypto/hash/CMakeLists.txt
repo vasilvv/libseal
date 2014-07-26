@@ -9,3 +9,4 @@ add_library(
 )
 
 add_subdirectory(md5)
+add_subdirectory(sha1)
