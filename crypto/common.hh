@@ -14,19 +14,19 @@ namespace crypto {
  *
  * The class has two accessors: ptr() and cptr().  First returns a read-write
  * pointer, second returns read-only pointer, and it's the only one you can use
- * if you have a const MemorySlice.  To create a const MemorySlice, use cmem()
+ * if you have a const memslice.  To create a const memslice, use cmem()
  * function.
  *
  * By convention, a null memory slice is represented as {nullptr, 0},
  * which is normally referred to as nullmem.
  */
-struct MemorySlice {
+struct memslice {
   private:
     uint8_t *ptr_;
     size_t size_;
 
   public:
-    inline MemorySlice(uint8_t *ptr, size_t size)
+    inline memslice(uint8_t *ptr, size_t size)
         : ptr_(ptr), size_(size) {}
     operator bool() { return ptr_ != nullptr; }
 
@@ -35,15 +35,15 @@ struct MemorySlice {
     const size_t size() const { return size_; }
 };
 
-const MemorySlice nullmem = { nullptr, 0 };
+const memslice nullmem = { nullptr, 0 };
 
 // Convenience functions
-inline MemorySlice mem(uint8_t *ptr, size_t size) {
-    return MemorySlice(ptr, size);
+inline memslice mem(uint8_t *ptr, size_t size) {
+    return memslice(ptr, size);
 }
 
-inline const MemorySlice cmem(const uint8_t *ptr, size_t size) {
-    return MemorySlice(const_cast<uint8_t*>(ptr), size);
+inline const memslice cmem(const uint8_t *ptr, size_t size) {
+    return memslice(const_cast<uint8_t*>(ptr), size);
 }
 
 /**
@@ -66,12 +66,12 @@ class bytestring : public std::basic_string<uint8_t> {
     /**
      * Returns the pointer and the length of the buffer.
      */
-    inline MemorySlice mem() { return MemorySlice(ptr(), size()); }
+    inline memslice mem() { return memslice(ptr(), size()); }
 
     /**
      * Return the constant pointer and the length of the buffer.
      */
-    inline const MemorySlice cmem() const {
+    inline const memslice cmem() const {
         return crypto::cmem(cptr(), size());
     }
 
@@ -79,7 +79,7 @@ class bytestring : public std::basic_string<uint8_t> {
      * Return a pointer to a subset of the string; returns nullmem if goes out
      * of bounds or if specified length is zero.
      */
-    MemorySlice slice(size_t offset, size_t len);
+    memslice slice(size_t offset, size_t len);
 
     /**
      * Create empty buffer.
@@ -93,9 +93,9 @@ class bytestring : public std::basic_string<uint8_t> {
         : std::basic_string<uint8_t>(data, size) {}
 
     /**
-     * Create buffer by copying another buffer (MemorySlice).
+     * Create buffer by copying another buffer (memslice).
      */
-    bytestring(const MemorySlice mem)
+    bytestring(const memslice mem)
         : std::basic_string<uint8_t>(mem.cptr(), mem.size()) {}
 
     /**
@@ -115,7 +115,7 @@ class bytestring : public std::basic_string<uint8_t> {
      * Replace the contents of the buffer with the contents of the pointed
      * memory.
      */
-    void copy_from(const MemorySlice mem) {
+    void copy_from(const memslice mem) {
         resize(mem.size());
         memcpy(ptr(), mem.cptr(), mem.size());
     }

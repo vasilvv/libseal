@@ -189,7 +189,7 @@ MD5Impl::calc (uint32_t *data)
  */
 
 void
-MD5Impl::update(const MemorySlice data)
+MD5Impl::update(const memslice data)
 {
   const uint8_t *v = data.cptr();
   size_t len = data.size();

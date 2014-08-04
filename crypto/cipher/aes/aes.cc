@@ -10,7 +10,7 @@
 
 namespace crypto {
 
-AESBase_u AES(const MemorySlice key) {
+AESBase_u AES(const memslice key) {
     CPU cpu;
 
     if (cpu.has_aesni()) {
@@ -20,7 +20,7 @@ AESBase_u AES(const MemorySlice key) {
     return AESBase_u(new ReferenceAES(key));
 }
 
-ReferenceAES::ReferenceAES(const MemorySlice key) {
+ReferenceAES::ReferenceAES(const memslice key) {
     enc_key_schedule.resize(MAX_AES_KEY_SCHEDULE_LEN);
     dec_key_schedule.resize(MAX_AES_KEY_SCHEDULE_LEN);
 
@@ -49,7 +49,7 @@ void ReferenceAES::decrypt_block(const uint8_t *ciphertext,
 }
 
 
-IntelAES::IntelAES(const MemorySlice key) {
+IntelAES::IntelAES(const memslice key) {
     secret_key = bytestring(key);
 }
 

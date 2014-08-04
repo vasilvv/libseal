@@ -231,7 +231,7 @@ struct x32{
 };
 
 void
-SHA1Impl::update (const MemorySlice data)
+SHA1Impl::update (const memslice data)
 {
   const uint8_t *p = data.cptr();
   size_t len = data.size();

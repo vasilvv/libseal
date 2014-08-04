@@ -5,7 +5,7 @@
 namespace crypto {
 
 template <uint8_t padding>
-static inline void copy_and_pad(const MemorySlice in_mem, MemorySlice out_mem) {
+static inline void copy_and_pad(const memslice in_mem, memslice out_mem) {
     size_t i = 0;
     const uint8_t *in = in_mem.cptr();
     uint8_t *out = out_mem.ptr();
@@ -19,7 +19,7 @@ static inline void copy_and_pad(const MemorySlice in_mem, MemorySlice out_mem) {
     }
 }
 
-HMAC::HMAC(HashFunctionFactory HFF, const MemorySlice key) {
+HMAC::HMAC(HashFunctionFactory HFF, const memslice key) {
     inner_hash = HFF();
     outer_hash = HFF();
 
@@ -40,7 +40,7 @@ HMAC::HMAC(HashFunctionFactory HFF, const MemorySlice key) {
     outer_hash->update(outer_padded_key.cmem());
 }
 
-void HMAC::update(const MemorySlice data) {
+void HMAC::update(const memslice data) {
     inner_hash->update(data);
 }
 

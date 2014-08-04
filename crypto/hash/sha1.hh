@@ -34,7 +34,7 @@ class SHA1Impl : public SHA1Base {
   public:
     SHA1Impl();
 
-    virtual void update(const MemorySlice data) override;
+    virtual void update(const memslice data) override;
     virtual bytestring_u finish() override;
 };
 

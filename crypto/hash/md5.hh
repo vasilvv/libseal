@@ -34,7 +34,7 @@ class MD5Impl : public MD5Base {
   public:
     MD5Impl();
 
-    virtual void update(const MemorySlice data) override;
+    virtual void update(const memslice data) override;
     virtual bytestring_u finish() override;
 };
 

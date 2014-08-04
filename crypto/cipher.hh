@@ -104,7 +104,7 @@ class BlockCipher : public CipherBase {
 };
 
 typedef std::unique_ptr<BlockCipher> BlockCipher_u;
-typedef std::function<BlockCipher_u(const MemorySlice)> BlockCipherFactory;
+typedef std::function<BlockCipher_u(const memslice)> BlockCipherFactory;
 
 /**
  * The base interface of a stream cipher, that is, a cipher which operates by
@@ -119,11 +119,11 @@ class StreamCipher : public CipherBase {
      * Generate the secret stream and xor it with the contents of the supplied
      * memory slice.
      */
-    virtual void stream_xor(MemorySlice stream) = 0;
+    virtual void stream_xor(memslice stream) = 0;
 };
 
 typedef std::unique_ptr<StreamCipher> StreamCipher_u;
-typedef std::function<StreamCipher_u(const MemorySlice, const MemorySlice)> StreamCipherFactory;
+typedef std::function<StreamCipher_u(const memslice, const memslice)> StreamCipherFactory;
 
 }
 

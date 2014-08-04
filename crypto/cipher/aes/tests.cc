@@ -466,7 +466,7 @@ void test_cbc_vectors(crypto::BlockCipherFactory impl) {
     }
 }
 
-crypto::BlockCipher_u referenceAES(const crypto::MemorySlice key) {
+crypto::BlockCipher_u referenceAES(const crypto::memslice key) {
     return crypto::BlockCipher_u(new crypto::ReferenceAES(key));
 }
 
@@ -483,7 +483,7 @@ TEST(ReferenceAES, SelfCompat) {
     crypto::test_randomized_compat(referenceAES, referenceAES, 32, 10000);
 }
 
-crypto::BlockCipher_u intelAES(const crypto::MemorySlice key) {
+crypto::BlockCipher_u intelAES(const crypto::memslice key) {
     return crypto::BlockCipher_u(new crypto::IntelAES(key));
 }
 

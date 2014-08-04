@@ -4,7 +4,7 @@
 
 namespace crypto {
 
-MemorySlice bytestring::slice(size_t offset, size_t len) {
+memslice bytestring::slice(size_t offset, size_t len) {
     if (len == 0) {
         return nullmem;
     }
@@ -17,7 +17,7 @@ MemorySlice bytestring::slice(size_t offset, size_t len) {
         return nullmem;
     }
 
-    return MemorySlice(ptr() + offset, len);
+    return memslice(ptr() + offset, len);
 }
 
 bytestring bytestring::from_hex(const char *hex) {

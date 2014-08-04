@@ -35,7 +35,7 @@ class HashFunction {
     /**
      * Feed data into the hash function.
      */
-    virtual void update(const MemorySlice data) = 0;
+    virtual void update(const memslice data) = 0;
 
     /**
      * Finish computation of the hash function and return the output.  May
@@ -48,7 +48,7 @@ class HashFunction {
 typedef std::unique_ptr<HashFunction> HashFunction_u;
 typedef std::function<HashFunction_u()> HashFunctionFactory;
 
-inline bytestring_u hash(HashFunctionFactory HFF, const MemorySlice data) {
+inline bytestring_u hash(HashFunctionFactory HFF, const memslice data) {
     HashFunction_u hash = HFF();
     hash->update(data);
     return hash->finish();
@@ -66,12 +66,12 @@ class HMAC {
     /**
      * Create an HMAC using hash function |hash| and key |key|.
      */
-    HMAC(HashFunctionFactory HFF, const MemorySlice key);
+    HMAC(HashFunctionFactory HFF, const memslice key);
 
     /**
      * Feed data into the MAC.
      */
-    void update(const MemorySlice data);
+    void update(const memslice data);
 
     /**
      * Finish computing the MAC and return it.  May change the state of the
@@ -80,7 +80,7 @@ class HMAC {
     bytestring_u finish();
 };
 
-inline bytestring_u hmac(HashFunctionFactory HFF, const MemorySlice key, const MemorySlice data) {
+inline bytestring_u hmac(HashFunctionFactory HFF, const memslice key, const memslice data) {
     HMAC mac(HFF, key);
     mac.update(data);
     return mac.finish();

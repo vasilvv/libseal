@@ -25,7 +25,7 @@ class AESBase : public BlockCipher {
 };
 
 typedef std::unique_ptr<AESBase> AESBase_u;
-AESBase_u AES(const MemorySlice key);
+AESBase_u AES(const memslice key);
 
 /**
  * Reference implementation of AES in pure C.  Uses lookup tables, and as such
@@ -41,7 +41,7 @@ class ReferenceAES : public AESBase {
     uint8_t nrounds;
 
   public:
-    ReferenceAES(const MemorySlice key);
+    ReferenceAES(const memslice key);
 
     virtual const char *get_impl_desc() const override {
         return "Reference AES implementation";
@@ -66,7 +66,7 @@ class IntelAES : public AESBase {
     bytestring secret_key;
 
   public:
-    IntelAES(const MemorySlice key);
+    IntelAES(const memslice key);
 
     virtual const char *get_impl_desc() const override {
         return "Intel AES-NI";

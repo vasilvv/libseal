@@ -313,7 +313,7 @@ void test_ietf_vectors(crypto::StreamCipherFactory impl) {
     }
 }
 
-crypto::StreamCipher_u defaultRC4(const crypto::MemorySlice key, const crypto::MemorySlice iv) {
+crypto::StreamCipher_u defaultRC4(const crypto::memslice key, const crypto::memslice iv) {
     return crypto::StreamCipher_u(new crypto::RC4Impl(key, iv));
 }
 
