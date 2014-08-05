@@ -30,9 +30,13 @@ struct memslice {
         : ptr_(ptr), size_(size) {}
     operator bool() { return ptr_ != nullptr; }
 
-    uint8_t *ptr() { return ptr_; }
-    const uint8_t *cptr() const { return ptr_; }
-    const size_t size() const { return size_; }
+    inline uint8_t *ptr() { return ptr_; }
+    inline const uint8_t *cptr() const { return ptr_; }
+    inline const size_t size() const { return size_; }
+
+    inline bool eq(const memslice other) {
+        return !(size() != other.size() || memcmp(cptr(), other.cptr(), size()));
+    }
 };
 
 const memslice nullmem = { nullptr, 0 };
@@ -126,6 +130,11 @@ class bytestring : public std::basic_string<uint8_t> {
     static bytestring from_hex(const char *hex);
 };
 typedef std::unique_ptr<bytestring> bytestring_u;
+
+enum Endianness {
+    BigEndian,
+    LittleEndian
+};
 
 }
 
