@@ -19,4 +19,5 @@ add_library(
 	$<TARGET_OBJECTS:crypto_hash_md5>
 	$<TARGET_OBJECTS:crypto_hash_sha1>
 )
+target_link_libraries(crypto modp_b64)
 target_link_libraries(crypto intel_aesni)

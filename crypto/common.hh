@@ -31,7 +31,9 @@ struct memslice {
     operator bool() { return ptr_ != nullptr; }
 
     inline uint8_t *ptr() { return ptr_; }
+    inline char *charptr() { return reinterpret_cast<char*>(ptr_); }
     inline const uint8_t *cptr() const { return ptr_; }
+    inline const char *ccharptr() const { return reinterpret_cast<const char*>(ptr_); }
     inline const size_t size() const { return size_; }
 
     inline bool eq(const memslice other) {
@@ -65,6 +67,20 @@ class bytestring : public std::basic_string<uint8_t> {
      */
     inline const uint8_t *cptr() const {
         return empty() ? nullptr : &*cbegin();
+    }
+
+    /**
+     * Wrapper for functions which accept char* pointers.
+     */
+    inline char *charptr() {
+        return reinterpret_cast<char*>(ptr());
+    }
+
+    /**
+     * Wrapper for functions which accept const char* pointers.
+     */
+    inline const char *ccharptr() const {
+        return reinterpret_cast<const char*>(cptr());
     }
 
     /**
@@ -109,6 +125,11 @@ class bytestring : public std::basic_string<uint8_t> {
         : std::basic_string<uint8_t>(il) {};
 
     /**
+     * Create a bytestring from a C string.
+     */
+    bytestring(const char *str);
+
+    /**
      * Create a buffer of a specific size.
      */
     bytestring(size_t len) : std::basic_string<uint8_t>() {
@@ -130,6 +151,14 @@ class bytestring : public std::basic_string<uint8_t> {
     static bytestring from_hex(const char *hex);
 };
 typedef std::unique_ptr<bytestring> bytestring_u;
+
+/**
+ * Basic base64 encoding functions.  Do not handle any whitespace.  In case if
+ * whitespace or any other non-format data is present, base64_decode returns
+ * nullptr.
+ */
+bytestring_u base64_encode(const memslice input);
+bytestring_u base64_decode(const memslice input);
 
 enum Endianness {
     BigEndian,

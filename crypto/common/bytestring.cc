@@ -4,6 +4,12 @@
 
 namespace crypto {
 
+bytestring::bytestring(const char *str) {
+    size_t src_len = strlen(str);
+    resize(src_len);
+    memcpy(ptr(), str, src_len);
+}
+
 memslice bytestring::slice(size_t offset, size_t len) {
     if (len == 0) {
         return nullmem;
