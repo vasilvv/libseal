@@ -46,6 +46,7 @@ class BaseParser {
     virtual ~BaseParser() {};
 
     inline bool has_unconsumed_data() { return offset < source.size(); }
+    inline size_t get_current_offset() { return offset; }
     inline bool is_valid() { return valid; }
     inline ParserFailureMode get_failure_mode() { return failure; }
 
