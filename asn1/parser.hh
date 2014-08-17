@@ -14,9 +14,10 @@ namespace asn1 {
  * The parser performs validation of the incoming data, some aspects of which
  * may be made more lenient by setting appropriate parser options.
  *
- * Features not supported include indefinite length and multibyte tag values.
- * Support for those may be added provided that samples of valid use cases from
- * real-life cryptographic applications would be added into the test suite.
+ * Features not supported include indefinite length, multibyte tag values and
+ * encoding switching using control sequences.  Support for those may be added
+ * provided that samples of valid use cases from real-life cryptographic
+ * applications would be added into the test suite.
  *
  * Memory ownership considerations: this class does not assert the ownership of
  * any copies of data in any form; all parser output contains only pointers to
