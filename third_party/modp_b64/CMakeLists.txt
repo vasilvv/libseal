@@ -1,4 +1,4 @@
-# This file is made in order to integrate modp_b64 library with PonySSL
+# This file is made in order to integrate modp_b64 library with libseal
 # buildsystem
 
 cmake_minimum_required(VERSION 2.8)

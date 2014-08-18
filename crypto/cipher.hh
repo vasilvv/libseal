@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 The PonySSL Authors.  All rights reservied.
+ * Copyright (C) 2014 The libseal Authors.  All rights reservied.
  *
  * Use of this source code file is governed by MIT license, as stated in the
  * LICENSE file.

@@ -1,4 +1,4 @@
-# This file is made in order to integrate Intel AES-NI library with PonySSL
+# This file is made in order to integrate Intel AES-NI library with libseal
 # buildsystem
 
 cmake_minimum_required(VERSION 2.8)
