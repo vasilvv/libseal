@@ -19,10 +19,3 @@ add_executable(
 )
 target_link_libraries(oid_tests asn1)
 target_link_libraries(oid_tests crypto_testutils)
-
-add_executable(
-    asn1_cli
-
-    test.cc
-)
-target_link_libraries(asn1_cli asn1)
