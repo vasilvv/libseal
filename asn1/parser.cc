@@ -109,6 +109,7 @@ Data_u Parser::parse_core() {
                 return Data_u(new BooleanData(tag, constructed, data_class, body));
             }
 
+            // Parser OIDs
             if (univ_tag == UTOID) {
                 OIDData_u oid(new OIDData(tag, constructed, data_class, body));
                 assert_format(oid->validate());
