@@ -20,8 +20,6 @@
 
 namespace asn1 {
 
-// TODO: support OIDs
-
 using crypto::memslice;
 using crypto::bytestring;
 using crypto::bytestring_u;
