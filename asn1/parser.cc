@@ -106,12 +106,12 @@ Data_u Parser::parse_core() {
                     uint8_t val = *body.cptr();
                     assert_format(val == 0xff || val == 0x00);
                 }
-                return Data_u(new Boolean(tag, constructed, data_class, body));
+                return Data_u(new BooleanData(tag, constructed, data_class, body));
             }
 
             // Handle text types
             if (is_text_type(univ_tag)) {
-                Text_u text(new Text(tag, constructed, data_class, body, options));
+                TextData_u text(new TextData(tag, constructed, data_class, body, options));
                 assert_format(text->validate());
                 return Data_u(text.release());
             }

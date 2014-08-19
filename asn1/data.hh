@@ -188,15 +188,15 @@ typedef std::unique_ptr<ConstructedData> ConstructedData_u;
 /**
  * Boolean ASN.1 type.
  */
-class Boolean : public Data {
+class BooleanData : public Data {
     friend class Parser;
 
   protected:
-    Boolean(Tag tag_, bool constructed_, Class class_, const memslice body_)
+    BooleanData(Tag tag_, bool constructed_, Class class_, const memslice body_)
         : Data(tag_, constructed_, class_, body_) {};
 
   public:
-    virtual ~Boolean() {};
+    virtual ~BooleanData() {};
 
     inline bool get() { return *body.cptr(); }
 };
@@ -208,20 +208,20 @@ class Boolean : public Data {
  * This class represents only primitive string types; in BER, if a string is
  * constructed, assembling it back is up to the consumer.
  */
-class Text : public Data {
+class TextData : public Data {
     friend class Parser;
 
   protected:
     const UniversalType univ_type;
     const ParserOptions options;
 
-    Text(Tag tag_, bool constructed_, Class class_, const memslice body_,
+    TextData(Tag tag_, bool constructed_, Class class_, const memslice body_,
          const ParserOptions &options_)
         : Data(tag_, constructed_, class_, body_),
           univ_type(static_cast<UniversalType>(tag)), options(options_) {};
 
   public:
-    virtual ~Text() {};
+    virtual ~TextData() {};
 
     /**
      * Verifies that the string is properly encoded.  UTF-8 validation might be
@@ -239,7 +239,7 @@ class Text : public Data {
     bytestring_u to_utf8();
 };
 
-typedef std::unique_ptr<Text> Text_u;
+typedef std::unique_ptr<TextData> TextData_u;
 
 }
 

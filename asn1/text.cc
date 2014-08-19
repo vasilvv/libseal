@@ -110,7 +110,7 @@ static bool is_printable_character(char c) {
     return false;
 }
 
-bool Text::validate() {
+bool TextData::validate() {
     const char *str = body.ccharptr();
     const char *str_end = body.ccharptr() + body.size();
     switch (univ_type) {
@@ -201,7 +201,7 @@ static const char *get_encoding_by_type(UniversalType type, bool treat_teletex_a
     }
 }
 
-bytestring_u Text::to_utf8() {
+bytestring_u TextData::to_utf8() {
     if (body.size() == 0) {
         return bytestring_u(new bytestring(""));
     }
