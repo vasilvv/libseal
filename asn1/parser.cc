@@ -109,11 +109,18 @@ Data_u Parser::parse_core() {
                 return Data_u(new BooleanData(tag, constructed, data_class, body));
             }
 
-            // Parser OIDs
+            // Parse OIDs
             if (univ_tag == UTOID) {
                 OIDData_u oid(new OIDData(tag, constructed, data_class, body));
                 assert_format(oid->validate());
                 return Data_u(oid.release());
+            }
+
+            // Parse UTCTime
+            if (univ_tag == UTUTCTime) {
+                UTCTimeData_u time(new UTCTimeData(tag, constructed, data_class, body, options));
+                assert_format(time->validate());
+                return Data_u(time.release());
             }
 
             // Handle text types

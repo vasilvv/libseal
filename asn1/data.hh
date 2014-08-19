@@ -256,6 +256,58 @@ class TextData : public Data {
 
 typedef std::unique_ptr<TextData> TextData_u;
 
+/**
+ * Represents a value of UTCTime field, which in case of BER may not be
+ * necessarily UTC.
+ */
+struct UTCTime {
+    // Christian year number (like 2014)
+    uint32_t year;
+    // Month of the year (1 .. 12)
+    uint8_t month;
+    // Day of the month (1 .. 31)
+    uint8_t day;
+
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    // Always true in case of DER
+    bool has_seconds;
+
+    // Whether the timezone is explicitly specified (even if it's +0000)
+    bool is_nonutc;
+    // Offset from UTC in minutes (always zero in case of DER)
+    int32_t tzoffset;
+};
+
+class UTCTimeData : public Data {
+    friend class Parser;
+
+  protected:
+    bool is_der;
+    bool valid = true;
+    UTCTime parsed;
+
+    bool do_parse();
+    UTCTimeData(Tag tag_, bool constructed_, Class class_, const memslice body_,
+                const ParserOptions &options)
+        : Data(tag_, constructed_, class_, body_),
+          is_der(options.encoding == DER) {
+        valid = do_parse();
+    };
+
+  public:
+    inline bool validate() const { return valid; }
+    inline const UTCTime &parse() const { return parsed; }
+
+    /**
+     * Return a human-readable representation of the date.
+     */
+    std::string to_string() const;
+};
+
+typedef std::unique_ptr<UTCTimeData> UTCTimeData_u;
+
 }
 
 #endif  /* __ASN1_DATA */

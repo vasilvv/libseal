@@ -2,8 +2,6 @@
 
 #include "crypto/parser.hh"
 
-#include <sstream>
-
 namespace asn1 {
 
 OID::OID(const std::initializer_list<OIDComponent> components) {
