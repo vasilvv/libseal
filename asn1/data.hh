@@ -15,6 +15,7 @@
 
 #include "crypto/common.hh"
 
+#include "asn1/oid.hh"
 #include "asn1/parser_options.hh"
 
 namespace asn1 {
@@ -200,6 +201,22 @@ class BooleanData : public Data {
 
     inline bool get() { return *body.cptr(); }
 };
+
+class OIDData : public Data {
+    friend class Parser;
+
+  protected:
+    OID oid;
+
+    OIDData(Tag tag_, bool constructed_, Class class_, const memslice body_)
+        : Data(tag_, constructed_, class_, body_), oid(body_) {};
+
+  public:
+    inline const OID &get() const { return oid; }
+    bool validate() const { return oid.validate(); }
+};
+
+typedef std::unique_ptr<OIDData> OIDData_u;
 
 /**
  * Represents a text type, that is, a type where the data has the text form and

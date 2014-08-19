@@ -109,6 +109,12 @@ Data_u Parser::parse_core() {
                 return Data_u(new BooleanData(tag, constructed, data_class, body));
             }
 
+            if (univ_tag == UTOID) {
+                OIDData_u oid(new OIDData(tag, constructed, data_class, body));
+                assert_format(oid->validate());
+                return Data_u(oid.release());
+            }
+
             // Handle text types
             if (is_text_type(univ_tag)) {
                 TextData_u text(new TextData(tag, constructed, data_class, body, options));
