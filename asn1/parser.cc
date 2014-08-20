@@ -86,7 +86,7 @@ Data_u Parser::parse_core() {
             assert_format(nested_element != nullptr);
 
             // Enforce DER ordering constraint on sets here
-            if (enforce_set_order && elems.size() > 1) {
+            if (enforce_set_order && elems.size() > 0) {
                 const memslice prev_body = elems[elems.size() - 1]->get_body();
                 assert_format(nested_element->get_body().cmp(prev_body) >= 0);
             }

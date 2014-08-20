@@ -39,7 +39,7 @@ struct memslice {
     inline bool eq(const memslice other) const {
         return !(size() != other.size() || memcmp(cptr(), other.cptr(), size()));
     }
-    inline bool cmp(const memslice other) const {
+    inline int cmp(const memslice other) const {
         int cmp_shortest = memcmp(cptr(), other.cptr(), std::min(size(), other.size()));
         if (cmp_shortest == 0 && size() != other.size()) {
             return size() > other.size() ? 1 : -1;
