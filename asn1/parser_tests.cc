@@ -142,6 +142,18 @@ TEST(ParserGeneric, ShortestLengthConstraint) {
     ASSERT_TRUE(does_parsing_fails("0484" + strrep("ff", 0xf)));
 }
 
+// Composite octet strings (and strings in general) are valid in BER, but not
+// in DER
+//
+//  0   9: OCTET STRING {
+//  2   2:   OCTET STRING 00 01
+//  6   3:   OCTET STRING 02 03 04
+//       :   }
+TEST(ParserGeneric, ConstructedString) {
+    ASSERT_TRUE(does_parsing_fails("2409040200010403020304"));
+    ASSERT_FALSE(does_parsing_fails("2409040200010403020304", true, false));
+}
+
 // Basic boolean test, contains only DER-valid bools
 //  0   6: SEQUENCE {
 //  2   1:   BOOLEAN TRUE
