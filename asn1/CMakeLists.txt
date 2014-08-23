@@ -24,6 +24,7 @@ add_executable(
     asn1_parser_tests
 
     parser_tests.cc
+    parser_test_data.cc
 )
 target_link_libraries(asn1_parser_tests asn1)
 target_link_libraries(asn1_parser_tests crypto_testutils)

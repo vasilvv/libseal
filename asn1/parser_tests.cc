@@ -5,6 +5,11 @@
 using crypto::bytestring;
 using crypto::bytestring_u;
 
+// Excessively large blobs defined in asn1/parser_test_data.cc
+extern const char *asn1_recursion_test_100;
+extern const char *asn1_recursion_test_1024;
+extern const char *asn1_recursion_test_1025;
+
 asn1::ParserOptions default_options(asn1::Encoding enc = asn1::DER) {
     asn1::ParserOptions options = {};
     options.encoding = enc;
@@ -152,6 +157,14 @@ TEST(ParserGeneric, ShortestLengthConstraint) {
 TEST(ParserGeneric, ConstructedString) {
     ASSERT_TRUE(does_parsing_fails("2409040200010403020304"));
     ASSERT_FALSE(does_parsing_fails("2409040200010403020304", true, false));
+}
+
+// Deep recursion tests
+TEST(ParserGenric, RecursionLimit) {
+    // NULL nested in 100, 1024 and 1025 sequences; limit is 1024
+    ASSERT_FALSE(does_parsing_fails(asn1_recursion_test_100));
+    ASSERT_FALSE(does_parsing_fails(asn1_recursion_test_1024));
+    ASSERT_TRUE (does_parsing_fails(asn1_recursion_test_1025));
 }
 
 // Basic boolean test, contains only DER-valid bools

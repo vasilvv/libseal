@@ -26,6 +26,9 @@ Data_u Parser::parse_core() {
     bool constructed = (full_tag & 0x20) >> 5;
     Class data_class = static_cast<Class>((full_tag & 0xc0) >> 6);
 
+    // Prevent stack overflows
+    assert_format(options.recursion_depth <= recursion_depth_limit);
+
     // Do not support multibyte tag values, since no known crypto app we
     // currently want to support uses that
     assert_format(tag != 0x1f);
@@ -77,7 +80,7 @@ Data_u Parser::parse_core() {
         ConstructedData_u container(new ConstructedData(tag, constructed, data_class, body));
 
         // Pick the necessary parser for the nested value
-        Parser_u nested_parser(new Parser(body, options));
+        Parser_u nested_parser(new Parser(body, options.deeper()));
 
         // Read all nested values
         std::vector<Data_u> &elems = container->elements;

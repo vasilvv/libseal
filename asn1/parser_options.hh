@@ -6,6 +6,12 @@
 namespace asn1 {
 
 /**
+ * Limit the nesting depth of ASN.1 values; otherwise a malicious DER blob can
+ * cause stack overflow.
+ */
+constexpr size_t recursion_depth_limit = 1024;
+
+/**
  * Form of ASN.1 encoding.
  */
 enum Encoding {
@@ -35,6 +41,14 @@ struct ParserOptions {
      * consumers of X.509 certificates treat it as Latin-1.
      */
     bool treat_teletex_as_latin1 = false;
+
+    size_t recursion_depth = 0;
+
+    ParserOptions deeper() const {
+        ParserOptions result(*this);
+        result.recursion_depth++;
+        return result;
+    }
 };
 
 }
