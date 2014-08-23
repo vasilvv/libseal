@@ -171,15 +171,18 @@ class ConstructedData : public Data {
     friend class Parser;
 
   protected:
-    std::vector<Data_u> elements;
+    std::unique_ptr<std::vector<Data_u>> elements;
+
     ConstructedData(Tag tag_, bool constructed_, Class class_,
-                    const memslice body_)
-        : Data(tag_, constructed_, class_, body_) {};
+                    const memslice body_,
+                    std::unique_ptr<std::vector<Data_u>> &&elements_)
+        : Data(tag_, constructed_, class_, body_),
+          elements(std::move(elements_)) {};
 
   public:
     virtual ~ConstructedData() {};
 
-    inline const std::vector<Data_u> &get_elements() { return elements; }
+    inline const std::vector<Data_u> &get_elements() { return *elements; }
 };
 
 typedef std::unique_ptr<ConstructedData> ConstructedData_u;
