@@ -30,7 +30,7 @@ std::string strrep(std::string str, size_t num_rep) {
 /**
  * Returns if the parsing of given hex-encoded DER blob failed.
  */
-bool does_parsing_fails(std::string hex, bool parse_all = true, bool enforce_der = true) {
+bool does_parsing_fail(std::string hex, bool parse_all = true, bool enforce_der = true) {
     bytestring seq = bytestring::from_hex(hex.c_str());
 
     asn1::Parser parser(seq.cmem(), default_options(enforce_der ? asn1::DER : asn1::BER));
@@ -64,12 +64,12 @@ TEST(ParserGeneric, ThreeNullSequence) {
 TEST(ParserGeneric, ThreeSequenceNullBadLength) {
     // Same as above, except the length in the first case is 5, and in second
     // is 7
-    ASSERT_TRUE(does_parsing_fails("3005050005000500"));
-    ASSERT_TRUE(does_parsing_fails("3007050005000500"));
+    ASSERT_TRUE(does_parsing_fail("3005050005000500"));
+    ASSERT_TRUE(does_parsing_fail("3007050005000500"));
 
     // Here the length is 4, which results in an unconsumed null at the end
-    ASSERT_TRUE (does_parsing_fails("3004040005000500"));
-    ASSERT_FALSE(does_parsing_fails("3004040005000500", false));
+    ASSERT_TRUE (does_parsing_fail("3004040005000500"));
+    ASSERT_FALSE(does_parsing_fail("3004040005000500", false));
 }
 
 // A set with three context-specific types in it
@@ -135,16 +135,16 @@ TEST(ParserGeneric, LongLengthForm) {
 
 TEST(ParserGeneric, ShortestLengthConstraint) {
     // Use long form of the length where short would have sufficed
-    ASSERT_TRUE(does_parsing_fails("04810100"));
-    ASSERT_FALSE(does_parsing_fails("04810100", true, false));
+    ASSERT_TRUE(does_parsing_fail("04810100"));
+    ASSERT_FALSE(does_parsing_fail("04810100", true, false));
 
     // Use a redundant byte in the long form
-    ASSERT_TRUE(does_parsing_fails("048200ff" + strrep("42", 255)));
-    ASSERT_FALSE(does_parsing_fails("048200ff" + strrep("42", 255), true, false));
+    ASSERT_TRUE(does_parsing_fail("048200ff" + strrep("42", 255)));
+    ASSERT_FALSE(does_parsing_fail("048200ff" + strrep("42", 255), true, false));
 
     // Stress test by using ridiculous length
-    ASSERT_TRUE(does_parsing_fails("048f" + strrep("ff", 0xf)));
-    ASSERT_TRUE(does_parsing_fails("0484" + strrep("ff", 0xf)));
+    ASSERT_TRUE(does_parsing_fail("048f" + strrep("ff", 0xf)));
+    ASSERT_TRUE(does_parsing_fail("0484" + strrep("ff", 0xf)));
 }
 
 // Composite octet strings (and strings in general) are valid in BER, but not
@@ -155,16 +155,16 @@ TEST(ParserGeneric, ShortestLengthConstraint) {
 //  6   3:   OCTET STRING 02 03 04
 //       :   }
 TEST(ParserGeneric, ConstructedString) {
-    ASSERT_TRUE(does_parsing_fails("2409040200010403020304"));
-    ASSERT_FALSE(does_parsing_fails("2409040200010403020304", true, false));
+    ASSERT_TRUE(does_parsing_fail("2409040200010403020304"));
+    ASSERT_FALSE(does_parsing_fail("2409040200010403020304", true, false));
 }
 
 // Deep recursion tests
-TEST(ParserGenric, RecursionLimit) {
+TEST(ParserGeneric, RecursionLimit) {
     // NULL nested in 100, 1024 and 1025 sequences; limit is 1024
-    ASSERT_FALSE(does_parsing_fails(asn1_recursion_test_100));
-    ASSERT_FALSE(does_parsing_fails(asn1_recursion_test_1024));
-    ASSERT_TRUE (does_parsing_fails(asn1_recursion_test_1025));
+    ASSERT_FALSE(does_parsing_fail(asn1_recursion_test_100));
+    ASSERT_FALSE(does_parsing_fail(asn1_recursion_test_1024));
+    ASSERT_TRUE (does_parsing_fail(asn1_recursion_test_1025));
 }
 
 // Basic boolean test, contains only DER-valid bools
@@ -194,8 +194,8 @@ TEST(ParserBoolean, Basic) {
 //  0   1: BOOLEAN TRUE
 //       :   Error: BOOLEAN '01' has non-DER encoding.
 TEST(ParserBoolean, DERConstraint) {
-    ASSERT_TRUE(does_parsing_fails("010101"));
-    ASSERT_FALSE(does_parsing_fails("010101", true, false));
+    ASSERT_TRUE(does_parsing_fail("010101"));
+    ASSERT_FALSE(does_parsing_fail("010101", true, false));
 }
 
 // Test whether OID parser is integrated correctly and does validate
@@ -214,7 +214,7 @@ TEST(ParserOID, GoodOID) {
 }
 
 TEST(ParserOID, BadOID) {
-    ASSERT_TRUE(does_parsing_fails("0602ffff"));
+    ASSERT_TRUE(does_parsing_fail("0602ffff"));
 }
 
 void string_test_core(const bytestring der, asn1::UniversalType type, std::string &output, bool teletex_as_latin1 = false) {
@@ -234,9 +234,9 @@ void string_test_core(const bytestring der, asn1::UniversalType type, std::strin
 
 TEST(ParserText, NumericString) {
     //   0   5: NumericString '12 34'
-    ASSERT_FALSE(does_parsing_fails("12053132203334"));
+    ASSERT_FALSE(does_parsing_fail("12053132203334"));
     //   0   5: NumericString '12 3t'
-    ASSERT_TRUE(does_parsing_fails("12053132203374"));
+    ASSERT_TRUE(does_parsing_fail("12053132203374"));
 }
 
 TEST(ParserText, PrintableString) {
@@ -244,11 +244,11 @@ TEST(ParserText, PrintableString) {
     //       :   Error: PrintableString contains illegal character(s).
     // ("*" is not technically allowed, but we allow it because CAs would sign
     //  certs containting this mistake)
-    ASSERT_FALSE(does_parsing_fails("13092a2e6d69742e656475"));
+    ASSERT_FALSE(does_parsing_fail("13092a2e6d69742e656475"));
 
     //  0   9: PrintableString '..mit.edu'
     //       :   Error: PrintableString contains illegal character(s).
-    ASSERT_TRUE (does_parsing_fails("1309ff2e6d69742e656475"));
+    ASSERT_TRUE (does_parsing_fail("1309ff2e6d69742e656475"));
 }
 
 TEST(ParserText, ASCIIString) {
@@ -266,7 +266,7 @@ TEST(ParserText, ASCIIString) {
 }
 
 TEST(ParserText, BadASCIIString) {
-    ASSERT_TRUE(does_parsing_fails("1601f5"));
+    ASSERT_TRUE(does_parsing_fail("1601f5"));
 }
 
 TEST(ParserText, UniversalString) {
@@ -332,9 +332,9 @@ TEST(ParserText, UTF8Validation) {
     EXPECT_TRUE(utf8_validation_helper(triplet_str.substr(0, 1023)));
 
     // Completely bogus value
-    EXPECT_TRUE(does_parsing_fails("0c01ff"));
+    EXPECT_TRUE(does_parsing_fail("0c01ff"));
     // Null
-    EXPECT_FALSE(does_parsing_fails("0c0100"));
+    EXPECT_FALSE(does_parsing_fail("0c0100"));
 
     // Check if we can disable validation
     bytestring bad_utf8 = bytestring::from_hex("0c01ff");
