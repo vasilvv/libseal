@@ -182,7 +182,7 @@ class ConstructedData : public Data {
   public:
     virtual ~ConstructedData() {};
 
-    inline const std::vector<Data_u> &get_elements() { return *elements; }
+    inline const std::vector<Data_u> &get_elements() const { return *elements; }
 };
 
 typedef std::unique_ptr<ConstructedData> ConstructedData_u;

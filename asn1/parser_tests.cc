@@ -167,6 +167,44 @@ TEST(ParserGeneric, RecursionLimit) {
     ASSERT_TRUE (does_parsing_fail(asn1_recursion_test_1025));
 }
 
+TEST(ParserGeneric, IndefiniteLength) {
+    // Boolean with indefinite length
+    ASSERT_TRUE (does_parsing_fail("0180000000", true, false));
+    // Terminated and unterminated indef-length sequence
+    ASSERT_TRUE (does_parsing_fail("30800101ff", true, false));
+    ASSERT_FALSE(does_parsing_fail("30800101ff0000", true, false));
+
+    // Nested indef-length sequences
+    //   0 NDEF: SEQUENCE {
+    //   2 NDEF:   SEQUENCE {
+    //   4    0:     NULL
+    //   6    0:     NULL
+    //         :     }
+    //  10 NDEF:   SEQUENCE {
+    //  12    0:     NULL
+    //  14    0:     NULL
+    //  16    0:     NULL
+    //         :     }
+    //         :   }
+    bytestring nested = bytestring::from_hex("30803080050005000000308005000500050000000000");
+    asn1::Parser parser(nested.cmem(), default_options(asn1::BER));
+    asn1::Data_u result = parser.parse_all();
+
+    ASSERT_NE(nullptr, result.get());
+    ASSERT_TRUE(result->is_universal_type(asn1::UTSequence));
+
+    asn1::ConstructedData *container = static_cast<asn1::ConstructedData*>(result.get());
+    auto &elems = container->get_elements();
+    ASSERT_EQ(2, elems.size());
+    ASSERT_TRUE(elems[0]->is_universal_type(asn1::UTSequence));
+    ASSERT_TRUE(elems[1]->is_universal_type(asn1::UTSequence));
+
+    auto *container0 = static_cast<const asn1::ConstructedData*>(elems[0].get());
+    auto *container1 = static_cast<const asn1::ConstructedData*>(elems[1].get());
+    ASSERT_EQ(2, container0->get_elements().size());
+    ASSERT_EQ(3, container1->get_elements().size());
+}
+
 // Basic boolean test, contains only DER-valid bools
 //  0   6: SEQUENCE {
 //  2   1:   BOOLEAN TRUE
