@@ -331,11 +331,16 @@ TEST(ParsetText, TeletexString) {
     bytestring str = bytestring::from_hex("1401f2");
     std::string output;
 
+    // Valid Teletex
     string_test_core(str, asn1::UTTeletexString, output);
     EXPECT_EQ("đ", output);
 
+    // Valid Latin-1
     string_test_core(str, asn1::UTTeletexString, output, true);
     EXPECT_EQ("ò", output);
+
+    // Invalid Teletex
+    EXPECT_TRUE(does_parsing_fail("1401dd"));
 }
 
 // Helper function which takes a string of length between 2^8 and 2^16, turns
