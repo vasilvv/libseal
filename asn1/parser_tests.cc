@@ -332,7 +332,7 @@ TEST(ParsetText, TeletexString) {
     std::string output;
 
     // Valid Teletex
-    string_test_core(str, asn1::UTTeletexString, output);
+    string_test_core(str, asn1::UTTeletexString, output, false);
     EXPECT_EQ("đ", output);
 
     // Valid Latin-1
@@ -340,7 +340,12 @@ TEST(ParsetText, TeletexString) {
     EXPECT_EQ("ò", output);
 
     // Invalid Teletex
-    EXPECT_TRUE(does_parsing_fail("1401dd"));
+    bytestring seq = bytestring::from_hex("1401dd");
+    asn1::ParserOptions opts = default_options();
+    opts.treat_teletex_as_latin1 = false;
+    asn1::Parser parser(seq.cmem(), opts);
+    asn1::Data_u result = parser.parse_all();
+    EXPECT_EQ(nullptr, result.get());
 }
 
 // Helper function which takes a string of length between 2^8 and 2^16, turns

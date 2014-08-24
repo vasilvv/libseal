@@ -40,7 +40,7 @@ struct ParserOptions {
      * T.61 is the defined format for TeletexString; however, in reality most
      * consumers of X.509 certificates treat it as Latin-1.
      */
-    bool treat_teletex_as_latin1 = false;
+    bool treat_teletex_as_latin1 = true;
 
     size_t recursion_depth = 0;
 
