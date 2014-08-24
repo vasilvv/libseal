@@ -77,7 +77,7 @@ bool UTCTimeData::do_parse() {
     // string is at least as long as 10 or 12 (depending on whether it has
     // seconds)
     size_t tzpos = str.find_first_of("Z+-");
-    if (tzpos != 12 && !(is_der && tzpos == 10)) {
+    if (tzpos != 12 && (is_der || tzpos != 10)) {
         return false;
     }
     parsed.has_seconds = tzpos == 12;
@@ -150,7 +150,7 @@ std::string UTCTimeData::to_string() const {
         char sign = parsed.tzoffset >= 0 ? '+' : '-';
         uint32_t tzoffset =
             (parsed.tzoffset >= 0) ? parsed.tzoffset : -parsed.tzoffset;
-        snprintf(tzstr, sizeof(tzstr), "%c%2d%2d", sign, tzoffset / 60,
+        snprintf(tzstr, sizeof(tzstr), "%c%02d%02d", sign, tzoffset / 60,
                  tzoffset % 60);
     } else {
         tzstr[0] = 0;

@@ -392,6 +392,87 @@ TEST(ParserText, EmptyString) {
     EXPECT_EQ("", output);
 }
 
+bool time_test_core(std::string input, asn1::UTCTime &output, std::string &parsed, asn1::Encoding enc) {
+    bytestring encoded;
+    encoded.push_back(0x17);
+    encoded.push_back(input.size());
+    encoded.append(reinterpret_cast<const uint8_t*>(input.data()), input.size());
+
+    asn1::Parser parser(encoded.cmem(), default_options(enc));
+    asn1::Data_u result = parser.parse_all();
+
+    if (!result || !result->is_universal_type(asn1::UTUTCTime)) {
+        return false;
+    }
+
+    asn1::UTCTimeData *time_data = static_cast<asn1::UTCTimeData *>(result.get());
+    output = time_data->parse();
+    parsed = time_data->to_string();
+    return true;
+}
+
+TEST(ParserTime, Time) {
+    asn1::UTCTime time;
+    std::string parsed;
+
+    // Legitimate date
+    ASSERT_TRUE(time_test_core("910102123051Z", time, parsed, asn1::DER));
+    EXPECT_EQ("1991-01-02 12:30:51 (UTC)", parsed);
+    EXPECT_EQ(1991, time.year);
+    EXPECT_EQ(1, time.month);
+    EXPECT_EQ(2, time.day);
+    EXPECT_EQ(12, time.hour);
+    EXPECT_EQ(30, time.minute);
+    EXPECT_EQ(51, time.second);
+    EXPECT_EQ(0, time.tzoffset);
+
+    // Check wrapping points
+    ASSERT_TRUE(time_test_core("500101000000Z", time, parsed, asn1::DER));
+    EXPECT_EQ("1950-01-01 00:00:00 (UTC)", parsed);
+    ASSERT_TRUE(time_test_core("490101000000Z", time, parsed, asn1::DER));
+    EXPECT_EQ("2049-01-01 00:00:00 (UTC)", parsed);
+
+    // Check missing seconds
+    ASSERT_FALSE(time_test_core("9101010000Z", time, parsed, asn1::DER));
+    ASSERT_TRUE(time_test_core("9101010000Z", time, parsed, asn1::BER));
+    EXPECT_EQ("1991-01-01 00:00:00 (UTC)", parsed);
+
+    // Check timezone offset
+    ASSERT_FALSE(time_test_core("950208040000+0100", time, parsed, asn1::DER));
+    ASSERT_FALSE(time_test_core("950208040000-0100", time, parsed, asn1::DER));
+    ASSERT_TRUE(time_test_core("950208040000+0100", time, parsed, asn1::BER));
+    EXPECT_EQ("1995-02-08 04:00:00 (UTC+0100)", parsed);
+    ASSERT_TRUE(time_test_core("950208040000-0100", time, parsed, asn1::BER));
+    EXPECT_EQ("1995-02-08 04:00:00 (UTC-0100)", parsed);
+
+    // Unconsumed data
+    ASSERT_FALSE(time_test_core("9101010000Z0000", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("9101010000+00000", time, parsed, asn1::BER));
+
+    /*** Bogus time values ***/
+    // Bogus months
+    ASSERT_FALSE(time_test_core("950008040000Z", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("951308040000Z", time, parsed, asn1::BER));
+    // Bogus days
+    ASSERT_FALSE(time_test_core("950200040000Z", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("950431040000Z", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("950229040000Z", time, parsed, asn1::BER));
+    // Actual leap year
+    ASSERT_TRUE (time_test_core("000229040000Z", time, parsed, asn1::BER));
+    // Bogus hour, minute, second
+    ASSERT_FALSE(time_test_core("910101240000Z", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("910101236000Z", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("910101230060Z", time, parsed, asn1::BER));
+    // Bogus timezone offset
+    ASSERT_FALSE(time_test_core("910101230000+2400", time, parsed, asn1::BER));
+    ASSERT_FALSE(time_test_core("910101230000+0060", time, parsed, asn1::BER));
+    // Borderline valid values
+    ASSERT_TRUE (time_test_core("141231235959+2359", time, parsed, asn1::BER));
+
+    // Date with a non-digit character in it
+    ASSERT_FALSE(time_test_core("9101021$3051Z", time, parsed, asn1::BER));
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
