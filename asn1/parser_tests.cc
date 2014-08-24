@@ -255,7 +255,8 @@ TEST(ParserOID, BadOID) {
     ASSERT_TRUE(does_parsing_fail("0602ffff"));
 }
 
-void string_test_core(const bytestring der, asn1::UniversalType type, std::string &output, bool teletex_as_latin1 = false) {
+void string_test_core(const bytestring der, asn1::UniversalType type,
+                      std::string &output, bool teletex_as_latin1 = false) {
     asn1::ParserOptions opts;
     opts.treat_teletex_as_latin1 = teletex_as_latin1;
     asn1::Parser parser(der.cmem(), opts);
@@ -264,7 +265,7 @@ void string_test_core(const bytestring der, asn1::UniversalType type, std::strin
     ASSERT_NE(nullptr, result.get());
     ASSERT_TRUE(result->is_universal_type(type));
 
-    asn1::TextData* text_data = static_cast<asn1::TextData*>(result.get());
+    asn1::TextData *text_data = static_cast<asn1::TextData *>(result.get());
     bytestring_u text = text_data->to_utf8();
     ASSERT_NE(nullptr, text);
     output = text->to_string();
