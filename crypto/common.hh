@@ -138,6 +138,12 @@ class bytestring : public std::basic_string<uint8_t> {
     bytestring(const char *str);
 
     /**
+     * Constructor to upgrade basic_string<uint8_t> to bytestring.
+     */
+    bytestring(const std::basic_string<uint8_t> &val)
+        : bytestring(::crypto::cmem(val.data(), val.size())) {}
+
+    /**
      * Create a buffer of a specific size.
      */
     bytestring(size_t len) : std::basic_string<uint8_t>() {
@@ -157,6 +163,13 @@ class bytestring : public std::basic_string<uint8_t> {
      * Convert a well-formed hexadecimal string into corresponding bytestring.
      */
     static bytestring from_hex(const char *hex);
+
+    /**
+     * Convert the contents of this object to std::string.
+     */
+    inline std::string to_string() const {
+        return std::string(ccharptr(), size());
+    }
 };
 typedef std::unique_ptr<bytestring> bytestring_u;
 

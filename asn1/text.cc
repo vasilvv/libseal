@@ -143,6 +143,9 @@ bool TextData::validate() {
             return true;
 
         case UTASCIIString:
+            // FIXME: reconsider what can actually be in an ASCII string as meant by
+            // the specifciation as opposed to common sense
+
             return std::all_of(str, str_end, is_ascii_character);
 
         /**
