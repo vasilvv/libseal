@@ -28,7 +28,7 @@ struct memslice {
   public:
     inline memslice(uint8_t *ptr, size_t size)
         : ptr_(ptr), size_(size) {}
-    operator bool() { return ptr_ != nullptr; }
+    inline explicit operator bool() { return ptr_ != nullptr; }
 
     inline uint8_t *ptr() { return ptr_; }
     inline char *charptr() { return reinterpret_cast<char*>(ptr_); }
