@@ -28,6 +28,8 @@ struct memslice {
   public:
     inline memslice(uint8_t *ptr, size_t size)
         : ptr_(ptr), size_(size) {}
+    inline memslice(char *ptr, size_t size)
+        : ptr_(reinterpret_cast<uint8_t*>(ptr)), size_(size) {}
     inline explicit operator bool() { return ptr_ != nullptr; }
 
     inline uint8_t *ptr() { return ptr_; }
@@ -49,15 +51,23 @@ struct memslice {
     }
 };
 
-const memslice nullmem = { nullptr, 0 };
+const memslice nullmem = { (uint8_t*)nullptr, 0 };
 
 // Convenience functions
 inline memslice mem(uint8_t *ptr, size_t size) {
     return memslice(ptr, size);
 }
 
+inline memslice mem(char *ptr, size_t size) {
+    return memslice(ptr, size);
+}
+
 inline const memslice cmem(const uint8_t *ptr, size_t size) {
     return memslice(const_cast<uint8_t*>(ptr), size);
+}
+
+inline const memslice cmem(const char *ptr, size_t size) {
+    return memslice(const_cast<char*>(ptr), size);
 }
 
 /**
@@ -162,7 +172,11 @@ class bytestring : public std::basic_string<uint8_t> {
     /**
      * Convert a well-formed hexadecimal string into corresponding bytestring.
      */
-    static bytestring from_hex(const char *hex);
+    static bytestring from_hex(const memslice hex);
+
+    inline static bytestring from_hex(const char *hex) {
+        return from_hex(::crypto::cmem((uint8_t*)hex, strlen(hex)));
+    }
 
     /**
      * Convert the contents of this object to std::string.

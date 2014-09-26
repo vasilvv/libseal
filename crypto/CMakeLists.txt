@@ -1,6 +1,7 @@
 include_directories(..)
 
 add_subdirectory(asm)
+add_subdirectory(bignum)
 add_subdirectory(common)
 add_subdirectory(cipher)
 add_subdirectory(hash)
