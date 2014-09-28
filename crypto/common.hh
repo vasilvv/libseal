@@ -6,6 +6,8 @@
 #include <memory>
 #include <string>
 
+#include "crypto/assert.hh"
+
 namespace crypto {
 
 /**

@@ -12,6 +12,7 @@ add_library(
 	STATIC
 
 	$<TARGET_OBJECTS:crypto_asm>
+	$<TARGET_OBJECTS:crypto_bignum>
 	$<TARGET_OBJECTS:crypto_common>
 	$<TARGET_OBJECTS:crypto_cipher>
 	$<TARGET_OBJECTS:crypto_cipher_aes>

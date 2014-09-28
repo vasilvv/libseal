@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from itertools import product
+import random
 import sys
 
 # Generate addition tests.  Those tests are trying to ensure that
@@ -15,12 +16,30 @@ def gen_add_data():
         print "%064x" % a
         print "%064x" % b
         print "%064x" % ((a + b) % (2**256))
+        print "%064x" % ((a + b + 1) % (2**256))
     print "EOF"
+
+def gen_mul_data():
+    random.seed(123456)  # Make tests determininistic
+    for power in range(6, 14):
+        maxval = 2 ** (2**power)
+        fmt = "%0" + str(2 ** power / 4) + "x"
+        fmt2 = "%0" + str(2 ** (power + 1) / 4) + "x"
+        for i in xrange(1000):
+            a = random.randint(0, maxval)
+            b = random.randint(0, maxval)
+            print "------"
+            print fmt % a
+            print fmt % b
+            print fmt2 % (a * b)
+        print "EOF"
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print "Usage: test_gen.py [test type]"
     if sys.argv[1] == 'add':
         gen_add_data()
+    elif sys.argv[1] == 'mul':
+        gen_mul_data()
     else:
         print "Unknwon test type: %s" % sys.argv[1]
