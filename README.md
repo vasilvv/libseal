@@ -4,16 +4,16 @@ libseal (Secure Encryption and Authentication Library)
 libseal is a C++11 implementation of Transport Layer Security protocol.
 
 The aim of this project is to create a library which:
-1. is feasible to integrate with existing software,
-2. uses modern software development techniques to avoid regressions and memory
-   management issues,
-3. is not encumbered by absurd unmaintained chunks of code, like support for
-   arcane platforms, abandoned expermintal TLS extensions, random #if-0'd
-   debugging core,
-4. has reasonably straightforward design, which does not use class formed by a
-   class tree of 8 other classes in order to implement SHA-1, or pretends all
-   cryptograhpic interfaces are PKCS#11.
-5. is not encumbered by licensing issues,
+1.  is feasible to integrate with existing software,
+2.  uses modern software development techniques to avoid regressions and memory
+    management issues,
+3.  is not encumbered by absurd unmaintained chunks of code, like support for
+    arcane platforms, abandoned expermintal TLS extensions, random #if-0'd
+    debugging core,
+4.  has reasonably straightforward design, which does not use class formed by a
+    class tree of 8 other classes in order to implement SHA-1, or pretends all
+    cryptograhpic interfaces are PKCS#11.
+5.  is not encumbered by licensing issues,
 
 In other words, this library was started because in spite of seeming abundance
 of TLS libraries out there, OpenSSL turned out to be the right answer for most
