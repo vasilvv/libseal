@@ -32,7 +32,7 @@ def gen_mul_data():
             print fmt % a
             print fmt % b
             print fmt2 % (a * b)
-        print "EOF"
+    print "EOF"
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
