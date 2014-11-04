@@ -40,6 +40,42 @@ bool Bignum::lt_raw(size_t bytelen, const bnword_t *a, const bnword_t *b) {
     return answer;
 }
 
+/*******************  Shifts  *******************/
+
+/**
+ * Shift left the big number by one bit.  Works when input and output point to
+ * the same address in memory.
+ */
+void Bignum::shl1_raw(size_t bytelen, const bnword_t *input, bnword_t *output) {
+    const size_t wordlen = bytelen / sizeof(bnword_t);
+
+    bnword_t carry_bit = 0;
+    for (size_t i = 0; i < wordlen; i++) {
+        bnword_t next_carry_bit = input[i] >> (sizeof(bnword_t) * 8 - 1);
+
+        output[i] = (input[i] << 1) | carry_bit;
+        carry_bit = next_carry_bit;
+    }
+}
+
+/**
+ * Shift right the big number by one bit.  Works when input and output point to
+ * the same address in memory.
+ */
+void Bignum::shr1_raw(size_t bytelen, const bnword_t *input, bnword_t *output) {
+    const size_t wordlen = bytelen / sizeof(bnword_t);
+
+    bnword_t carry_bit = 0;
+    for (size_t i_real = 0; i_real < wordlen; i_real++) {
+        size_t i = wordlen - i_real - 1;
+        bnword_t next_carry_bit = input[i] & 0x01;
+        next_carry_bit = next_carry_bit << (sizeof(bnword_t) * 8 - 1);
+
+        output[i] = (input[i] >> 1) | carry_bit;
+        carry_bit = next_carry_bit;
+    }
+}
+
 /*******************  Addition and subtraction  *******************/
 
 /**

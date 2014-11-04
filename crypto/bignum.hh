@@ -98,6 +98,8 @@ class Bignum {
     static void mul_bnword(const bnword_t a, const bnword_t b, bnword_half_t *output /*[4]*/);
     static void mul_raw(size_t bytelen, const bnword_t *a /*[N]*/,
                         const bnword_t *b /*[N]*/, bnword_t *output /*[2N]*/);
+    static void shl1_raw(size_t bytelen, const bnword_t *input, bnword_t *output);
+    static void shr1_raw(size_t bytelen, const bnword_t *input, bnword_t *output);
 
   public:
     // Size in bytes
@@ -173,14 +175,44 @@ class Bignum {
     }
 
     /**
-     * Constant-type inequality test.
+     * Returns the lower half of the number.
      */
-    inline bool operator!=(const Bignum &other) {
+    inline std::unique_ptr<Bignum> half() const {
+        auto result = std::unique_ptr<Bignum>(new Bignum(bytelen / 2));
+        std::copy(cwords(), cwords() + wordlen / 2, result->words());
+        return result;
+    }
+
+    /**
+     * Constant-time inequality test.
+     */
+    inline bool operator!=(const Bignum &other) const {
         bnword_t flag = 0;
         for (size_t i = 0; i < wordlen; i++) {
             flag |= cwords()[i] ^ other.cwords()[i];
         }
         return flag;
+    }
+
+    /**
+     * Contant-time equality test.
+     */
+    inline bool operator==(const Bignum &other) const {
+        return !(*this != other);
+    }
+
+    /**
+     * Shift left by one bit.
+     */
+    inline void shift_left_by_one() {
+        shl1_raw(bytelen, words(), words());
+    }
+
+    /**
+     * Shift right by one bit.
+     */
+    inline void shift_right_by_one() {
+        shr1_raw(bytelen, words(), words());
     }
 
     /**
