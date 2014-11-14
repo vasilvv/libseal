@@ -48,6 +48,8 @@ constexpr static bool is_power_of_two(size_t n) {
     return n == 2 || (!(n & 1) ? is_power_of_two(n / 2) : false);
 }
 
+struct DivModResults;
+
 /**
  * Unsigned arbitrary precision arithmetic class for cryptographic purposes.
  *
@@ -95,6 +97,7 @@ class Bignum {
     static void sub_raw(size_t bytelen, const bnword_t *x, const bnword_t *y,
                         bnword_t *output);
     static bool lt_raw(size_t bytelen, const bnword_t *a, const bnword_t *b);
+    static bool gt_raw(size_t bytelen, const bnword_t *a, const bnword_t *b);
     static void mul_bnword(const bnword_t a, const bnword_t b, bnword_half_t *output /*[4]*/);
     static void mul_raw(size_t bytelen, const bnword_t *a /*[N]*/,
                         const bnword_t *b /*[N]*/, bnword_t *output /*[2N]*/);
@@ -257,9 +260,24 @@ class Bignum {
      * number is 2 * max(|this|, |other|).
      */
     std::unique_ptr<Bignum> multiply_by(const Bignum &other);
+
+    /**
+     * Divide by |denom| and return quotient and remainder in constant time.
+     */
+    std::unique_ptr<DivModResults> divide(const Bignum &denom);
 };
 
 typedef std::unique_ptr<Bignum> Bignum_u;
+
+struct DivModResults {
+    Bignum quotient;
+    Bignum remainder;
+
+    inline DivModResults(size_t bytelen)
+        : quotient(bytelen), remainder(bytelen) {}
+};
+
+typedef std::unique_ptr<DivModResults> DivModResults_u;
 
 }
 

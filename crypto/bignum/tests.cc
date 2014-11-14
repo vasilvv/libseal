@@ -193,6 +193,39 @@ TEST(BignumData, Mul) {
     }
 }
 
+TEST(BignumData, DivMod) {
+    std::ifstream test_data_file(crypto::test_data_path("test-data-divmod.txt"), std::ifstream::in);
+    ASSERT_TRUE(test_data_file);
+
+    while (test_data_file) {
+        std::string header;
+        std::getline(test_data_file, header);
+        if (header == "EOF") {
+            break;
+        }
+        ASSERT_EQ("------", header);
+
+        std::string a_hex;
+        std::string b_hex;
+        std::string quotient_hex;
+        std::string remainder_hex;
+        std::getline(test_data_file, a_hex);
+        std::getline(test_data_file, b_hex);
+        std::getline(test_data_file, quotient_hex);
+        std::getline(test_data_file, remainder_hex);
+
+        crypto::Bignum_u a = bn_from_hex(a_hex);
+        crypto::Bignum_u b = bn_from_hex(b_hex);
+
+        ASSERT_FALSE(!a);
+        ASSERT_FALSE(!b);
+
+        crypto::DivModResults_u actual = a->divide(*b);
+        ASSERT_EQ(quotient_hex, actual->quotient.to_hex());
+        ASSERT_EQ(remainder_hex, actual->remainder.to_hex());
+    }
+}
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

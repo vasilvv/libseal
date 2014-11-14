@@ -40,6 +40,28 @@ bool Bignum::lt_raw(size_t bytelen, const bnword_t *a, const bnword_t *b) {
     return answer;
 }
 
+/**
+ * Determine whether |a| is greater than |b| in constant-time.
+ */
+bool Bignum::gt_raw(size_t bytelen, const bnword_t *a, const bnword_t *b) {
+    const size_t wordlen = bytelen / sizeof(bnword_t);
+
+    bnword_t mask = 1;
+    bnword_t answer = 0;
+    // Iterate over number in big-endian order
+    for (size_t i = 0; i < wordlen; i++) {
+        bnword_t this_word = a[wordlen - i - 1];
+        bnword_t other_word = b[wordlen - i - 1];
+
+        // Put the results of comparison into the answer
+        answer += mask & (this_word > other_word);
+        // Unless this one was equal, we already got the answer; set mask to
+        // zero
+        mask = mask & (this_word == other_word);
+    }
+    return answer;
+}
+
 /*******************  Shifts  *******************/
 
 /**
@@ -290,6 +312,48 @@ std::unique_ptr<Bignum> Bignum::multiply_by(const Bignum &other) {
 
     std::unique_ptr<Bignum> result(new Bignum(2 * arg_len));
     mul_raw(arg_len, cwords(), other.cwords(), result->words());
+    return result;
+}
+
+/*******************  Division  *******************/
+
+/**
+ * This is an implementation of the shift-subtract algorithm.  This is fairly
+ * slow, but the faster ways (like Newton-Ralphson) are not constant-time, and
+ * I suspect that if I make them so, they will be just as slow if not slower.
+ */
+std::unique_ptr<DivModResults> Bignum::divide(const Bignum &denom) {
+    std::unique_ptr<DivModResults> result(new DivModResults(bytelen));
+    Bignum difference(bytelen);
+
+    // Iterate over each bit in the word starting with MSB
+    for (size_t i = 0; i < bytelen * 8; i++) {
+        // Flip the offset
+        size_t flipped_pos = bytelen * 8 - i - 1;
+        size_t byte_pos = flipped_pos / 8;
+        size_t bit_pos = flipped_pos % 8;
+
+        // Get current bit of the nominator
+        bnword_t current_nom = (data[byte_pos] >> bit_pos) & 0x01;
+
+        // remainder = remainder * 2 + current bit
+        result->remainder.shift_left_by_one();
+        result->remainder.data[0] |= current_nom;
+
+        // Check if remainder > denominator...
+        bnword_t remainder_gt_denominator = gt_raw(bytelen, result->remainder.cwords(), denom.cwords());
+
+        // ...and if so, subtract denominator from the remainder...
+        bnword_t difference_mask = -remainder_gt_denominator;
+        for (size_t j = 0; j < difference.wordlen; j++) {
+            difference.words()[j] = denom.cwords()[j] & difference_mask;
+        }
+        result->remainder.decrease_by(difference);
+
+        // ...and set the corresponding bit of the quotient to 1
+        result->quotient.data[byte_pos] |= remainder_gt_denominator << bit_pos;
+    }
+
     return result;
 }
 

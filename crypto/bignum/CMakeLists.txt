@@ -19,6 +19,7 @@ endfunction()
 
 add_test_data(add test-data-add.txt)
 add_test_data(mul test-data-mul.txt)
+add_test_data(divmod test-data-divmod.txt)
 
 add_executable(
 	bignum_tests
@@ -26,6 +27,7 @@ add_executable(
 	tests.cc
     test-data-add.txt
     test-data-mul.txt
+    test-data-divmod.txt
 )
 target_link_libraries(bignum_tests crypto)
 target_link_libraries(bignum_tests crypto_testutils)
